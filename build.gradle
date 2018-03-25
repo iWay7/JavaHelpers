@@ -1,5 +1,5 @@
 group 'site.iway'
-version '1.0.2'
+version '1.0.3'
 
 apply plugin: 'java'
 
@@ -10,5 +10,5 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.google.code.gson:gson:2.8.2'
 }
