@@ -19,12 +19,19 @@ public class HanziPinyinHelper {
         mRefsArray = new short[HANZI_COUNT];
         mPinyinArray = new String[PINYIN_COUNT];
 
-        byte[] buffer = StreamReader.readAllBytes(isHanziRef);
+        byte[] buffer = new byte[32 * 1024];
+        int startIndex = 0;
+        int readCount = isHanziRef.read(buffer);
+        while (readCount > -1) {
+            startIndex += readCount;
+            readCount = isHanziRef.read(buffer, startIndex, buffer.length - startIndex);
+        }
+        isHanziRef.close();
+
         for (int i = 0; i < HANZI_COUNT; i++) {
             mHanziArray[i] = BitConverter.getChar(buffer, i * 4);
             mRefsArray[i] = BitConverter.getShort(buffer, i * 4 + 2);
         }
-        isHanziRef.close();
 
         InputStreamReader pinyinReader = new InputStreamReader(isPinyin, "utf-8");
         BufferedReader pinyinBufferedReader = new BufferedReader(pinyinReader, 16 * 1024);
