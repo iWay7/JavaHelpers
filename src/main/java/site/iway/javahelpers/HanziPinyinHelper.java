@@ -41,10 +41,10 @@ public class HanziPinyinHelper {
         pinyinBufferedReader.close();
     }
 
-    static {
+    public static void initialize() {
         try {
-            InputStream isHanziRef = HanziPinyinHelper.class.getResourceAsStream("hanzi_ref.dat");
-            InputStream isPinyin = HanziPinyinHelper.class.getResourceAsStream("pinyin.dat");
+            InputStream isHanziRef = HanziPinyinHelper.class.getResourceAsStream("/hanzi_ref.dat");
+            InputStream isPinyin = HanziPinyinHelper.class.getResourceAsStream("/pinyin.dat");
             initialize(isHanziRef, isPinyin);
         } catch (IOException e) {
             // nothing

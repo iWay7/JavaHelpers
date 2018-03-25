@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/JavaHelpers.iml" filepath="$PROJECT_DIR$/JavaHelpers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-helpers.iml" filepath="$PROJECT_DIR$/.idea/modules/java-helpers.iml" />
     </modules>
   </component>
 </project>
