@@ -19,17 +19,10 @@ public class HanziPinyinHelper {
         mRefsArray = new short[HANZI_COUNT];
         mPinyinArray = new String[PINYIN_COUNT];
 
-        byte[] buffer = new byte[16 * 1024];
-        int readCount = isHanziRef.read(buffer);
-        int index = 0;
-        while (readCount > -1) {
-            for (int i = 0; i < readCount; i += 4) {
-                mHanziArray[index] = BitConverter.getChar(buffer, i);
-                mRefsArray[index] = BitConverter.getShort(buffer, i + 2);
-                index++;
-            }
-
-            readCount = isHanziRef.read(buffer);
+        byte[] buffer = StreamReader.readAllBytes(isHanziRef);
+        for (int i = 0; i < HANZI_COUNT; i++) {
+            mHanziArray[i] = BitConverter.getChar(buffer, i * 4);
+            mRefsArray[i] = BitConverter.getShort(buffer, i * 4 + 2);
         }
         isHanziRef.close();
 
