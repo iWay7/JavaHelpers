@@ -74,7 +74,7 @@ public abstract class FolderScanner extends Thread {
                 return true;
             }
         }
-        return mExtensions.size() == 0 || false;
+        return mExtensions.isEmpty();
     }
 
     private void addFiles(File root) {
