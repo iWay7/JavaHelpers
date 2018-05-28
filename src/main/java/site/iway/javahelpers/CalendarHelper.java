@@ -43,38 +43,6 @@ public class CalendarHelper {
         return calendar.getTimeInMillis();
     }
 
-    public static Calendar fromSeconds(long seconds) {
-        return fromMillis(seconds * SECOND_TO_MILLIS);
-    }
-
-    public static long toSeconds(Calendar calendar) {
-        return toMillis(calendar) / SECOND_TO_MILLIS;
-    }
-
-    public static Calendar fromMinutes(long minutes) {
-        return fromMillis(minutes * MINUTE_TO_MILLIS);
-    }
-
-    public static long toMinutes(Calendar calendar) {
-        return toMillis(calendar) / MINUTE_TO_MILLIS;
-    }
-
-    public static Calendar fromHours(long hours) {
-        return fromMillis(hours * HOUR_TO_MILLIS);
-    }
-
-    public static long toHours(Calendar calendar) {
-        return toMillis(calendar) / HOUR_TO_MILLIS;
-    }
-
-    public static Calendar fromDays(long days) {
-        return fromMillis(days * DAY_TO_MILLIS);
-    }
-
-    public static long toDays(Calendar calendar) {
-        return toMillis(calendar) / DAY_TO_MILLIS;
-    }
-
     public static Calendar fromString(String s, String format) {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat(format, LOCALE);
@@ -160,7 +128,7 @@ public class CalendarHelper {
         return lhsSecond - rhsSecond;
     }
 
-    public static int compareWithMillis(Calendar lhs, Calendar rhs) {
+    public static int compareTimeWithMillis(Calendar lhs, Calendar rhs) {
         int i = compareTime(lhs, rhs);
         if (i != 0) {
             int lhsMillis = lhs.get(Calendar.MILLISECOND);
