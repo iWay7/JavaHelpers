@@ -8,9 +8,9 @@ public class Money implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final long MAX_CENTS = +999999999999L;
+    public static final long MAX_CENTS = +99999999999999L;
     public static final long DEF_CENTS = 0L;
-    public static final long MIN_CENTS = -999999999999L;
+    public static final long MIN_CENTS = -99999999999999L;
 
     public static final Money ZERO = new Money(DEF_CENTS);
     public static final Money MAX = new Money(MAX_CENTS);
@@ -115,8 +115,8 @@ public class Money implements Serializable {
         sNormalFormatter.setGroupingUsed(false);
 
         sStandardFormatter = NumberFormat.getNumberInstance(Locale.CHINA);
-        sStandardFormatter.setMaximumIntegerDigits(12);
-        sStandardFormatter.setMinimumIntegerDigits(12);
+        sStandardFormatter.setMaximumIntegerDigits(14);
+        sStandardFormatter.setMinimumIntegerDigits(14);
         sStandardFormatter.setParseIntegerOnly(true);
         sStandardFormatter.setGroupingUsed(false);
 
@@ -273,11 +273,11 @@ public class Money implements Serializable {
         long absCents = Math.abs(mCents);
         String standardFormat = sStandardFormatter.format(absCents);
         char[] array = standardFormat.toCharArray();
-        String yi = getNumber(0, 0, array[0] - '0', array[1] - '0');
-        String wan = getNumber(array[2] - '0', array[3] - '0', array[4] - '0', array[5] - '0');
-        String yuan = getNumber(array[6] - '0', array[7] - '0', array[8] - '0', array[9] - '0');
+        String yi = getNumber(array[0] - '0', array[1] - '0', array[2] - '0', array[3] - '0');
+        String wan = getNumber(array[4] - '0', array[5] - '0', array[6] - '0', array[7] - '0');
+        String yuan = getNumber(array[8] - '0', array[9] - '0', array[10] - '0', array[11] - '0');
         String number1 = getNumber1(yi, wan, yuan);
-        String number2 = getNumber2(number1, array[10] - '0', array[11] - '0');
+        String number2 = getNumber2(number1, array[12] - '0', array[13] - '0');
         if (mCents < 0)
             return "负" + number2;
         else
