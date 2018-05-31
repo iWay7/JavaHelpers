@@ -106,6 +106,17 @@ public class HanziPinyinHelper {
         return null;
     }
 
+    public static String getPinyin(String s) {
+        StringBuilder builder = new StringBuilder();
+        int length = s.length();
+        for (int i = 0; i < length; i++) {
+            char c = s.charAt(i);
+            String pinyin = getPinyin(c);
+            builder.append(pinyin == null ? c : pinyin);
+        }
+        return builder.toString();
+    }
+
     public static boolean isHanzi(char c) {
         return getRefIndex(c) > -1;
     }
