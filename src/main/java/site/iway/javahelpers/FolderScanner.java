@@ -29,7 +29,7 @@ public abstract class FolderScanner extends Thread {
         mFolders.addAll(Arrays.asList(folders));
     }
 
-    public void addFolder(List<File> folders) {
+    public void addFolders(List<File> folders) {
         mFolders.addAll(folders);
     }
 
