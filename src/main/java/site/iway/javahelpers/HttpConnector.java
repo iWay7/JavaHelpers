@@ -7,6 +7,7 @@ import java.net.URL;
 public class HttpConnector extends Thread {
 
     private String mUrlString;
+    private String mUrlStringRedirect;
     private int mBufferSize;
     private volatile long mContentLength = 0;
     private volatile long mDownloadedLength = 0;
@@ -35,28 +36,44 @@ public class HttpConnector extends Thread {
         return mDownloadedLength;
     }
 
-    public void onPrepare() throws Exception {
+    protected void onPrepare() throws Exception {
     }
 
-    public void onStartConnect(HttpURLConnection connection) throws Exception {
+    protected HttpURLConnection createConnection(boolean isRetry) throws Exception {
+        URL url = new URL(isRetry ? mUrlStringRedirect : mUrlString);
+        return (HttpURLConnection) url.openConnection();
     }
 
-    public void onConnected(HttpURLConnection connection) throws Exception {
+    protected void onStartConnect(HttpURLConnection connection) throws Exception {
+        connection.setInstanceFollowRedirects(false);
+        connection.setRequestProperty("Accept-Encoding", "identity");
     }
 
-    public void onDataDownloaded(byte[] buffer, int startIndex, int count) throws Exception {
+    protected void onConnected(HttpURLConnection connection) throws Exception {
     }
 
-    public void onCanceled() throws Exception {
+    protected boolean willRetryConnect(HttpURLConnection connection) throws Exception {
+        int responseCode = connection.getResponseCode();
+        boolean willRedirect = responseCode == 301 || responseCode == 302;
+        if (willRedirect) {
+            mUrlStringRedirect = connection.getHeaderField("Location");
+        }
+        return willRedirect;
     }
 
-    public void onFinish() throws Exception {
+    protected void onDataDownloaded(byte[] buffer, int startIndex, int count) throws Exception {
     }
 
-    public void onError(Exception e) {
+    protected void onCanceled() throws Exception {
     }
 
-    public void onFinally() {
+    protected void onFinish() throws Exception {
+    }
+
+    protected void onError(Exception e) {
+    }
+
+    protected void onFinally() {
     }
 
     public void cancel() {
@@ -65,15 +82,21 @@ public class HttpConnector extends Thread {
 
     @Override
     public void run() {
-        InputStream inputStream = null;
         HttpURLConnection connection = null;
+        InputStream inputStream = null;
         try {
             onPrepare();
-            URL url = new URL(mUrlString);
-            connection = (HttpURLConnection) url.openConnection();
+            connection = createConnection(false);
             onStartConnect(connection);
             connection.connect();
             onConnected(connection);
+            while (willRetryConnect(connection)) {
+                connection.disconnect();
+                connection = createConnection(true);
+                onStartConnect(connection);
+                connection.connect();
+                onConnected(connection);
+            }
             mContentLength = connection.getContentLength();
             mDownloadedLength = 0;
             inputStream = connection.getInputStream();

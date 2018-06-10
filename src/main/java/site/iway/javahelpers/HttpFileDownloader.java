@@ -70,25 +70,25 @@ public class HttpFileDownloader extends HttpConnector {
         }
     }
 
-    private void renameTempFile() {
+    private void renameTempFile() throws Exception {
         if (mFile.exists()) {
             if (mOverwriteIfExisted) {
                 boolean result = mFile.delete();
                 if (!result) {
-                    throw new RuntimeException("Delete " + mFilePath + " failed.");
+                    throw new IOException("Delete " + mFilePath + " failed.");
                 }
             } else {
-                throw new RuntimeException(mFilePath + " already existed, try setOverwriteIfExisted(true) ?");
+                throw new IOException(mFilePath + " already existed, try setOverwriteIfExisted(true) ?");
             }
         }
         boolean result = mTempFile.renameTo(mFile);
         if (!result) {
-            throw new RuntimeException("Rename file " + mTempFile + " to " + mFilePath + " failed.");
+            throw new IOException("Rename file " + mTempFile + " to " + mFilePath + " failed.");
         }
     }
 
     @Override
-    public void onFinish() {
+    public void onFinish() throws Exception {
         closeCurrentFileStream();
         renameTempFile();
     }

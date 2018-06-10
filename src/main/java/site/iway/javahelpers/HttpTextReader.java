@@ -1,14 +1,10 @@
 package site.iway.javahelpers;
 
-import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
-import java.util.Base64;
-import java.util.Base64.Encoder;
 
 public abstract class HttpTextReader extends HttpDataGetter {
 
     private Charset mCharset;
-    private String mUserInfo;
 
     public HttpTextReader(String url, Charset charset) {
         super(url);
@@ -21,19 +17,6 @@ public abstract class HttpTextReader extends HttpDataGetter {
 
     public HttpTextReader(String url) {
         this(url, Charset.defaultCharset());
-    }
-
-    public void setUserInfo(String username, String password) {
-        mUserInfo = username + ":" + password;
-    }
-
-    @Override
-    public void onStartConnect(HttpURLConnection connection) throws Exception {
-        if (mUserInfo != null && mUserInfo.length() > 1) {
-            Encoder encoder = Base64.getEncoder();
-            String str = encoder.encodeToString(mUserInfo.getBytes("utf-8"));
-            connection.addRequestProperty("Authorization", "Basic " + str);
-        }
     }
 
     @Override
