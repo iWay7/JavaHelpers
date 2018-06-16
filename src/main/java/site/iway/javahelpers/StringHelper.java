@@ -1,10 +1,23 @@
 package site.iway.javahelpers;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 public class StringHelper {
+
+    private static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+
+    public static void setDefaultCharset(Charset defaultCharset) {
+        if (defaultCharset == null)
+            throw new NullPointerException("Param defaultCharset can not be null.");
+        DEFAULT_CHARSET = defaultCharset;
+    }
 
     public static boolean nullOrEmpty(String string) {
         return string == null || string.isEmpty();
@@ -103,28 +116,53 @@ public class StringHelper {
         return string.substring(beginIndex, endIndex);
     }
 
-    public static String merge(String... strings) {
+    public static String merge(List<String> strings, String splitter) {
         StringBuilder builder = new StringBuilder();
-        for (String string : strings) {
-            builder.append(string);
+        if (nullOrEmpty(splitter)) {
+            for (String string : strings) {
+                builder.append(string);
+                builder.append(splitter);
+            }
+            return builder.toString();
+        } else {
+            for (String string : strings) {
+                builder.append(splitter);
+                builder.append(string);
+            }
+            return builder.substring(splitter.length());
+        }
+    }
+
+    public static String merge(List<String> strings) {
+        return merge(strings, "");
+    }
+
+    public static String merge(String... strings) {
+        return merge(Arrays.asList(strings));
+    }
+
+    public static String padLeft(String content, int length, char c) {
+        StringBuilder builder = new StringBuilder(content);
+        while (builder.length() < length) {
+            builder.insert(0, c);
         }
         return builder.toString();
     }
 
-    public static String padLeft(String string, int length) {
-        StringBuilder builder = new StringBuilder(string);
+    public static String padLeft(String content, int length) {
+        return padLeft(content, length, ' ');
+    }
+
+    public static String padRight(String content, int length, char c) {
+        StringBuilder builder = new StringBuilder(content);
         while (builder.length() < length) {
-            builder.insert(0, ' ');
+            builder.append(c);
         }
         return builder.toString();
     }
 
-    public static String padRight(String string, int length) {
-        StringBuilder builder = new StringBuilder(string);
-        while (builder.length() < length) {
-            builder.append(' ');
-        }
-        return builder.toString();
+    public static String padRight(String content, int length) {
+        return padRight(content, length, ' ');
     }
 
     private static final char[] sRandomChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
@@ -147,6 +185,9 @@ public class StringHelper {
     private static final char[] sHexCharsUpperCase = "0123456789ABCDEF".toCharArray();
 
     public static String hex(byte[] data, boolean lowerCase) {
+        if (data == null) {
+            return null;
+        }
         char[] chars = new char[data.length * 2];
         if (lowerCase) {
             for (int i = 0; i < data.length; i++) {
@@ -183,8 +224,11 @@ public class StringHelper {
     }
 
     public static byte[] binary(String hex) {
+        if (hex == null) {
+            return null;
+        }
         int stringLength = hex.length();
-        if (stringLength < 0 || stringLength % 2 != 0) {
+        if (stringLength % 2 != 0) {
             throw new RuntimeException("Invalid hex string.");
         }
         int length = hex.length() / 2;
@@ -195,16 +239,73 @@ public class StringHelper {
         return data;
     }
 
-    public static String md5(String string, Charset charset) {
-        byte[] data = string.getBytes(charset);
+    public static String md5(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        byte[] data = content.getBytes(charset);
         byte[] md5 = SecurityHelper.md5(data);
         return hex(md5);
     }
 
-    public static String md5(String string) {
-        byte[] data = string.getBytes();
-        byte[] md5 = SecurityHelper.md5(data);
-        return hex(md5);
+    public static String md5(String content) {
+        return md5(content, DEFAULT_CHARSET);
+    }
+
+    public static String sha1(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        byte[] data = content.getBytes(charset);
+        byte[] sha1 = SecurityHelper.sha1(data);
+        return hex(sha1);
+    }
+
+    public static String sha1(String content) {
+        return sha1(content, DEFAULT_CHARSET);
+    }
+
+    public static String crc32(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        byte[] data = content.getBytes(charset);
+        long crc32 = SecurityHelper.crc32(data);
+        return padLeft(Long.toHexString(crc32), 8, '0');
+    }
+
+    public static String crc32(String content) {
+        return crc32(content, DEFAULT_CHARSET);
+    }
+
+    public static String urlEncode(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        try {
+            return URLEncoder.encode(content, charset.name());
+        } catch (UnsupportedEncodingException e) {
+            return "";
+        }
+    }
+
+    public static String urlEncode(String content) {
+        return urlEncode(content, DEFAULT_CHARSET);
+    }
+
+    public static String urlDecode(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        try {
+            return URLDecoder.decode(content, charset.name());
+        } catch (UnsupportedEncodingException e) {
+            return "";
+        }
+    }
+
+    public static String urlDecode(String content) {
+        return urlDecode(content, DEFAULT_CHARSET);
     }
 
 }

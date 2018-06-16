@@ -7,11 +7,6 @@ import java.util.TimeZone;
 
 public class CalendarHelper {
 
-    public static final long SECOND_TO_MILLIS = 1 * 1000;
-    public static final long MINUTE_TO_MILLIS = 60 * SECOND_TO_MILLIS;
-    public static final long HOUR_TO_MILLIS = 60 * MINUTE_TO_MILLIS;
-    public static final long DAY_TO_MILLIS = 24 * HOUR_TO_MILLIS;
-
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String DATE_TIME_FORMAT_WINDOWS = "yyyy/MM/dd HH:mm:ss";
     public static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -22,6 +17,18 @@ public class CalendarHelper {
 
     public static Calendar now() {
         return Calendar.getInstance(TIME_ZONE, LOCALE);
+    }
+
+    public static String nowDateTimeString() {
+        return formatDateTime(now());
+    }
+
+    public static String nowDateString() {
+        return formatDate(now());
+    }
+
+    public static String nowTimeString() {
+        return formatTime(now());
     }
 
     public static Calendar nowDate() {

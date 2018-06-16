@@ -5,12 +5,12 @@ import java.io.OutputStream;
 
 public class ProcessHelper {
 
-    public static Process exec(String name, String input) throws IOException {
+    public static Process exec(String name, String input, String charset) throws IOException {
         Runtime runtime = Runtime.getRuntime();
         Process process = runtime.exec(name);
-        if (input != null && input.length() > 0) {
+        if (input != null && !input.isEmpty()) {
             OutputStream outputStream = process.getOutputStream();
-            byte[] inputData = input.getBytes();
+            byte[] inputData = input.getBytes(charset);
             outputStream.write(inputData);
             outputStream.flush();
             outputStream.close();
@@ -19,7 +19,8 @@ public class ProcessHelper {
     }
 
     public static Process exec(String name) throws IOException {
-        return exec(name, null);
+        Runtime runtime = Runtime.getRuntime();
+        return runtime.exec(name);
     }
 
 }

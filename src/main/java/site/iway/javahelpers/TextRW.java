@@ -7,6 +7,14 @@ import java.util.List;
 
 public class TextRW {
 
+    private static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+
+    public static void setDefaultCharset(Charset defaultCharset) {
+        if (defaultCharset == null)
+            throw new NullPointerException("Param defaultCharset can not be null.");
+        DEFAULT_CHARSET = defaultCharset;
+    }
+
     public static String readAllText(InputStream inputStream, Charset charset) throws IOException {
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream, charset);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -20,7 +28,27 @@ public class TextRW {
     }
 
     public static String readAllText(InputStream inputStream) throws IOException {
-        return readAllText(inputStream, Charset.defaultCharset());
+        return readAllText(inputStream, DEFAULT_CHARSET);
+    }
+
+    public static String readAllText(File file, Charset charset) throws IOException {
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+            return readAllText(fileInputStream, charset);
+        } finally {
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (Exception e) {
+                    // nothing
+                }
+            }
+        }
+    }
+
+    public static String readAllText(File file) throws IOException {
+        return readAllText(file, DEFAULT_CHARSET);
     }
 
     public static void writeAllText(OutputStream outputStream, Charset charset, String content) throws IOException {
@@ -30,7 +58,27 @@ public class TextRW {
     }
 
     public static void writeAllText(OutputStream outputStream, String content) throws IOException {
-        writeAllText(outputStream, Charset.defaultCharset(), content);
+        writeAllText(outputStream, DEFAULT_CHARSET, content);
+    }
+
+    public static void writeAllText(File file, Charset charset, String content) throws IOException {
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(file);
+            writeAllText(fileOutputStream, charset, content);
+        } finally {
+            if (fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (Exception e) {
+                    // nothing
+                }
+            }
+        }
+    }
+
+    public static void writeAllText(File file, String content) throws IOException {
+        writeAllText(file, DEFAULT_CHARSET, content);
     }
 
     public static List<String> readAllLines(InputStream inputStream, Charset charset) throws IOException {
@@ -45,7 +93,27 @@ public class TextRW {
     }
 
     public static List<String> readAllLines(InputStream inputStream) throws IOException {
-        return readAllLines(inputStream, Charset.defaultCharset());
+        return readAllLines(inputStream, DEFAULT_CHARSET);
+    }
+
+    public static List<String> readAllLines(File file, Charset charset) throws IOException {
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+            return readAllLines(fileInputStream, charset);
+        } finally {
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (Exception e) {
+                    // nothing
+                }
+            }
+        }
+    }
+
+    public static List<String> readAllLines(File file) throws IOException {
+        return readAllLines(file, DEFAULT_CHARSET);
     }
 
     public static void writeAllLines(OutputStream outputStream, Charset charset, List<String> content) throws IOException {
@@ -58,7 +126,27 @@ public class TextRW {
     }
 
     public static void writeAllLines(OutputStream outputStream, List<String> content) throws IOException {
-        writeAllLines(outputStream, Charset.defaultCharset(), content);
+        writeAllLines(outputStream, DEFAULT_CHARSET, content);
+    }
+
+    public static void writeAllLines(File file, Charset charset, List<String> content) throws IOException {
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(file);
+            writeAllLines(fileOutputStream, charset, content);
+        } finally {
+            if (fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (Exception e) {
+                    // nothing
+                }
+            }
+        }
+    }
+
+    public static void writeAllLines(File file, List<String> content) throws IOException {
+        writeAllLines(file, DEFAULT_CHARSET, content);
     }
 
 }

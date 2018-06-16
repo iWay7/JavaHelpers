@@ -3,6 +3,7 @@ package site.iway.javahelpers;
 import java.io.File;
 import java.text.DecimalFormat;
 
+@Deprecated
 public class CacheCleaner {
 
     public interface CacheCleanerListener {
