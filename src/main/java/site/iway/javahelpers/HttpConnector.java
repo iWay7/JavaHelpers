@@ -45,6 +45,8 @@ public class HttpConnector extends Thread {
     }
 
     protected void onStartConnect(HttpURLConnection connection) throws Exception {
+        connection.setConnectTimeout(20 * 1000);
+        connection.setReadTimeout(20 * 1000);
         connection.setInstanceFollowRedirects(false);
         connection.setRequestProperty("Accept-Encoding", "identity");
     }
@@ -97,22 +99,24 @@ public class HttpConnector extends Thread {
                 connection.connect();
                 onConnected(connection);
             }
-            mContentLength = connection.getContentLength();
-            mDownloadedLength = 0;
-            inputStream = connection.getInputStream();
-            byte[] buffer = new byte[mBufferSize];
-            while (true) {
-                int readCount = inputStream.read(buffer);
-                if (mIsCanceled) {
-                    onCanceled();
-                    break;
-                } else if (readCount > 0) {
-                    onDataDownloaded(buffer, 0, readCount);
-                    mDownloadedLength += readCount;
-                } else if (readCount == 0) {
-                    sleep(10);
-                } else {
-                    break;
+            if (connection.getDoInput()) {
+                mContentLength = connection.getContentLength();
+                mDownloadedLength = 0;
+                inputStream = connection.getInputStream();
+                byte[] buffer = new byte[mBufferSize];
+                while (true) {
+                    int readCount = inputStream.read(buffer);
+                    if (mIsCanceled) {
+                        onCanceled();
+                        break;
+                    } else if (readCount > 0) {
+                        onDataDownloaded(buffer, 0, readCount);
+                        mDownloadedLength += readCount;
+                    } else if (readCount == 0) {
+                        sleep(10);
+                    } else {
+                        break;
+                    }
                 }
             }
             onFinish();
