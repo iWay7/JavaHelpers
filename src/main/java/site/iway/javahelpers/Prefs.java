@@ -14,12 +14,21 @@ public class Prefs {
     public Prefs(String prefsFile, String key) {
         mSynchronizer = new Object();
         mPrefsFile = prefsFile;
-        if (key != null && key.length() != 24) {
-            throw new RuntimeException("The key length must be 24 if provided.");
+        if (key != null) {
+            int keyLength = key.length();
+            if (keyLength == 24) {
+                for (int i = 0; i < keyLength; i++) {
+                    if (key.charAt(i) >= 128) {
+                        throw new RuntimeException("The key can only be ascii codes.");
+                    }
+                }
+            } else {
+                throw new RuntimeException("The key length must be 24 if provided.");
+            }
         }
         mKey = key;
         mItemsChanged = false;
-        mItems = ObjectIO.read(mPrefsFile, mKey);
+        mItems = ObjectRW.read(mPrefsFile, mKey);
         if (mItems == null) {
             mItems = new HashMap<>();
         }
@@ -178,7 +187,7 @@ public class Prefs {
     public boolean commit() {
         synchronized (mSynchronizer) {
             if (mItemsChanged) {
-                if (ObjectIO.write(mPrefsFile, mKey, mItems)) {
+                if (ObjectRW.write(mPrefsFile, mKey, mItems)) {
                     mItemsChanged = false;
                     return true;
                 } else {

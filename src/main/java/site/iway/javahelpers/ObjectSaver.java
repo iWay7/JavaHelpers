@@ -15,13 +15,26 @@ public class ObjectSaver {
         File file = new File(cachePath);
         if (!file.exists()) {
             if (!file.mkdirs()) {
-                throw new RuntimeException("Create directory failed.");
+                throw new RuntimeException("Create cache directory failed.");
+            }
+        } else {
+            if (file.isFile()) {
+                throw new RuntimeException("Cache path is not a directory.");
             }
         }
         mCachePath = cachePath;
         mNameToMD5 = nameToMD5;
-        if (key != null && key.length() != 24) {
-            throw new RuntimeException("The key length must be 24 if provided.");
+        if (key != null) {
+            int keyLength = key.length();
+            if (keyLength == 24) {
+                for (int i = 0; i < keyLength; i++) {
+                    if (key.charAt(i) >= 128) {
+                        throw new RuntimeException("The key can only be ascii codes.");
+                    }
+                }
+            } else {
+                throw new RuntimeException("The key length must be 24 if provided.");
+            }
         }
         mKey = key;
     }
@@ -46,7 +59,7 @@ public class ObjectSaver {
             name = StringHelper.md5(name);
         }
         String filePath = mCachePath + name;
-        return (T) ObjectIO.read(filePath, mKey);
+        return (T) ObjectRW.read(filePath, mKey);
     }
 
     public static boolean save(String name, Object obj) {
@@ -55,14 +68,22 @@ public class ObjectSaver {
             name = StringHelper.md5(name);
         }
         String filePath = mCachePath + name;
-        return ObjectIO.write(filePath, mKey, obj);
+        return ObjectRW.write(filePath, mKey, obj);
     }
 
     public static boolean delete(String name) {
+        checkName(name);
+        if (mNameToMD5) {
+            name = StringHelper.md5(name);
+        }
         return new File(mCachePath + name).delete();
     }
 
     public static boolean exists(String name) {
+        checkName(name);
+        if (mNameToMD5) {
+            name = StringHelper.md5(name);
+        }
         return new File(mCachePath + name).exists();
     }
 

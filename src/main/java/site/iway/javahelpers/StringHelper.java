@@ -23,51 +23,6 @@ public class StringHelper {
         return string == null || string.isEmpty();
     }
 
-    public static boolean nullOrWhiteSpace(String string) {
-        if (nullOrEmpty(string)) {
-            return true;
-        }
-        int length = string.length();
-        int start = 0;
-        while ((start < length) && (string.charAt(start) == ' ')) {
-            start++;
-        }
-        while ((start < length) && (string.charAt(length - 1) == ' ')) {
-            length--;
-        }
-        return start == length;
-    }
-
-    public static boolean nullOrControlChars(String string) {
-        if (nullOrEmpty(string)) {
-            return true;
-        }
-        int length = string.length();
-        int start = 0;
-        while ((start < length) && (string.charAt(start) < ' ' || string.charAt(start) == 127)) {
-            start++;
-        }
-        while ((start < length) && (string.charAt(length - 1) < ' ' || string.charAt(start) == 127)) {
-            length--;
-        }
-        return start == length;
-    }
-
-    public static boolean nullOrWhiteSpaceOrControlChars(String string) {
-        if (nullOrEmpty(string)) {
-            return true;
-        }
-        int length = string.length();
-        int start = 0;
-        while ((start < length) && (string.charAt(start) <= ' ' || string.charAt(start) == 127)) {
-            start++;
-        }
-        while ((start < length) && (string.charAt(length - 1) <= ' ' || string.charAt(start) == 127)) {
-            length--;
-        }
-        return start == length;
-    }
-
     public static String extract(String string, String prefix, String suffix) {
         int prefixIndex = string.indexOf(prefix);
         if (prefixIndex < 0)

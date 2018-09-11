@@ -6,8 +6,9 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
-public class ObjectIO {
+public class ObjectRW {
 
     public static <T> T read(String filePath, String desedeKey) {
         File file = null;
@@ -20,7 +21,7 @@ public class ObjectIO {
             if (StringHelper.nullOrEmpty(desedeKey)) {
                 objectInputStream = new ObjectInputStream(fileInputStream);
             } else {
-                byte[] key = desedeKey.getBytes();
+                byte[] key = desedeKey.getBytes(StandardCharsets.US_ASCII);
                 String algorithm = "DESede";
                 Cipher cipher = Cipher.getInstance(algorithm);
                 SecretKey secretKey = new SecretKeySpec(key, algorithm);
@@ -52,7 +53,7 @@ public class ObjectIO {
             if (StringHelper.nullOrEmpty(desedeKey)) {
                 objectOutputStream = new ObjectOutputStream(fileOutputStream);
             } else {
-                byte[] key = desedeKey.getBytes();
+                byte[] key = desedeKey.getBytes(StandardCharsets.US_ASCII);
                 String algorithm = "DESede";
                 Cipher cipher = Cipher.getInstance(algorithm);
                 SecretKey secretKey = new SecretKeySpec(key, algorithm);
