@@ -1,11 +1,6 @@
 package site.iway.javahelpers;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
+import java.io.Serializable;
 import java.util.HashMap;
 
 public class Prefs {
@@ -16,41 +11,18 @@ public class Prefs {
     private boolean mItemsChanged;
     private HashMap<String, Object> mItems;
 
-    private void readFromFile() {
-        FileInputStream fileInputStream = null;
-        CipherInputStream cipherInputStream = null;
-        ObjectInputStream objectInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(mPrefsFile);
-            if (StringHelper.nullOrEmpty(mKey)) {
-                objectInputStream = new ObjectInputStream(fileInputStream);
-            } else {
-                byte[] key = mKey.getBytes();
-                String algorithm = "DESede";
-                Cipher cipher = Cipher.getInstance(algorithm);
-                SecretKey secretKey = new SecretKeySpec(key, algorithm);
-                cipher.init(Cipher.DECRYPT_MODE, secretKey);
-                cipherInputStream = new CipherInputStream(fileInputStream, cipher);
-                objectInputStream = new ObjectInputStream(cipherInputStream);
-            }
-            mItems = (HashMap<String, Object>) objectInputStream.readObject();
-        } catch (Exception e) {
-            mItems = new HashMap<>();
-        } finally {
-            try {
-                objectInputStream.close();
-            } catch (Exception e) {
-                // nothing
-            }
-        }
-    }
-
     public Prefs(String prefsFile, String key) {
         mSynchronizer = new Object();
         mPrefsFile = prefsFile;
+        if (key != null && key.length() != 24) {
+            throw new RuntimeException("The key length must be 24 if provided.");
+        }
         mKey = key;
         mItemsChanged = false;
-        readFromFile();
+        mItems = ObjectIO.read(mPrefsFile, mKey);
+        if (mItems == null) {
+            mItems = new HashMap<>();
+        }
     }
 
     public Prefs(String prefsFile) {
@@ -206,38 +178,15 @@ public class Prefs {
     public boolean commit() {
         synchronized (mSynchronizer) {
             if (mItemsChanged) {
-                FileOutputStream fileOutputStream = null;
-                CipherOutputStream cipherOutputStream = null;
-                ObjectOutputStream objectOutputStream = null;
-                try {
-                    fileOutputStream = new FileOutputStream(mPrefsFile);
-                    if (StringHelper.nullOrEmpty(mKey)) {
-                        objectOutputStream = new ObjectOutputStream(fileOutputStream);
-                    } else {
-                        byte[] key = mKey.getBytes();
-                        String algorithm = "DESede";
-                        Cipher cipher = Cipher.getInstance(algorithm);
-                        SecretKey secretKey = new SecretKeySpec(key, algorithm);
-                        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                        cipherOutputStream = new CipherOutputStream(fileOutputStream, cipher);
-                        objectOutputStream = new ObjectOutputStream(cipherOutputStream);
-                    }
-                    objectOutputStream.writeObject(mItems);
+                if (ObjectIO.write(mPrefsFile, mKey, mItems)) {
                     mItemsChanged = false;
                     return true;
-                } catch (Exception e) {
+                } else {
                     return false;
-                } finally {
-                    try {
-                        if (objectOutputStream != null) {
-                            objectOutputStream.close();
-                        }
-                    } catch (Exception e) {
-                        // nothing
-                    }
                 }
+            } else {
+                return true;
             }
-            return false;
         }
     }
 

@@ -15,7 +15,7 @@ import java.security.cert.CertificateFactory;
 
 public class SSLHelper {
 
-    private TrustManager[] combine(TrustManager[]... arrays) {
+    private static TrustManager[] combine(TrustManager[]... arrays) {
         int totalLength = 0;
         for (TrustManager[] objects : arrays) {
             totalLength += objects.length;
@@ -29,7 +29,7 @@ public class SSLHelper {
         return newArray;
     }
 
-    public SSLContext generateSSLContext(String... certificateStrings) {
+    public static SSLContext generateSSLContext(String... certificateStrings) {
         try {
             TrustManager[] trustManagers = new TrustManager[0];
             for (String certificateString : certificateStrings) {
@@ -54,7 +54,7 @@ public class SSLHelper {
         }
     }
 
-    public SSLSocketFactory generateSSLSocketFactory(String... certificateStrings) {
+    public static SSLSocketFactory generateSSLSocketFactory(String... certificateStrings) {
         SSLContext sslContext = generateSSLContext(certificateStrings);
         return sslContext == null ? null : sslContext.getSocketFactory();
     }

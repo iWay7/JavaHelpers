@@ -1,75 +1,61 @@
 package site.iway.javahelpers;
 
-import java.io.*;
+import java.io.File;
 
 public class ObjectSaver {
 
     private static String mCachePath;
     private static boolean mNameToMD5;
+    private static String mKey;
+
+    public static void initialize(String cachePath, boolean nameToMD5, String key) {
+        if (!cachePath.endsWith(File.separator)) {
+            cachePath += File.separator;
+        }
+        File file = new File(cachePath);
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                throw new RuntimeException("Create directory failed.");
+            }
+        }
+        mCachePath = cachePath;
+        mNameToMD5 = nameToMD5;
+        if (key != null && key.length() != 24) {
+            throw new RuntimeException("The key length must be 24 if provided.");
+        }
+        mKey = key;
+    }
 
     public static void initialize(String cachePath, boolean nameToMD5) {
-        mCachePath = cachePath;
-        if (mCachePath.endsWith(File.separator) == false) {
-            mCachePath += File.separator;
-        }
-        File file = new File(mCachePath);
-        if (file.exists() == false) {
-            file.mkdirs();
-        }
-        mNameToMD5 = nameToMD5;
+        initialize(cachePath, nameToMD5, null);
     }
 
     public static void initialize(String cachePath) {
         initialize(cachePath, false);
     }
 
-    public static <T> T read(String name) {
-        if (mNameToMD5) {
-            byte[] data = name.getBytes();
-            byte[] md5 = SecurityHelper.md5(data);
-            name = StringHelper.hex(md5);
-        }
-        File file = new File(mCachePath + name);
-        ObjectInputStream objectInputStream = null;
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            objectInputStream = new ObjectInputStream(fileInputStream);
-            return (T) objectInputStream.readObject();
-        } catch (Exception e) {
-            return null;
-        } finally {
-            try {
-                objectInputStream.close();
-            } catch (Exception e) {
-                // nothing
-            }
+    private static void checkName(String name) {
+        if (StringHelper.nullOrEmpty(name)) {
+            throw new RuntimeException("The name can not be null or empty.");
         }
     }
 
-    public static boolean save(String name, Object obj) {
+    public static <T> T read(String name) {
+        checkName(name);
         if (mNameToMD5) {
-            byte[] data = name.getBytes();
-            byte[] md5 = SecurityHelper.md5(data);
-            name = StringHelper.hex(md5);
+            name = StringHelper.md5(name);
         }
-        File file = new File(mCachePath + name);
-        ObjectOutputStream objectOutputStream = null;
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(obj);
-            objectOutputStream.flush();
-            objectOutputStream.close();
-            return true;
-        } catch (Exception e) {
-            try {
-                objectOutputStream.close();
-            } catch (Exception exception) {
-                // nothing
-            }
-            file.delete();
+        String filePath = mCachePath + name;
+        return (T) ObjectIO.read(filePath, mKey);
+    }
+
+    public static boolean save(String name, Object obj) {
+        checkName(name);
+        if (mNameToMD5) {
+            name = StringHelper.md5(name);
         }
-        return false;
+        String filePath = mCachePath + name;
+        return ObjectIO.write(filePath, mKey, obj);
     }
 
     public static boolean delete(String name) {
