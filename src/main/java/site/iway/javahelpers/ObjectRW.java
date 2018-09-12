@@ -6,7 +6,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 
 public class ObjectRW {
 
@@ -21,7 +21,7 @@ public class ObjectRW {
             if (StringHelper.nullOrEmpty(desedeKey)) {
                 objectInputStream = new ObjectInputStream(fileInputStream);
             } else {
-                byte[] key = desedeKey.getBytes(StandardCharsets.US_ASCII);
+                byte[] key = desedeKey.getBytes(Charset.forName("US-ASCII"));
                 String algorithm = "DESede";
                 Cipher cipher = Cipher.getInstance(algorithm);
                 SecretKey secretKey = new SecretKeySpec(key, algorithm);
@@ -53,7 +53,7 @@ public class ObjectRW {
             if (StringHelper.nullOrEmpty(desedeKey)) {
                 objectOutputStream = new ObjectOutputStream(fileOutputStream);
             } else {
-                byte[] key = desedeKey.getBytes(StandardCharsets.US_ASCII);
+                byte[] key = desedeKey.getBytes(Charset.forName("US-ASCII"));
                 String algorithm = "DESede";
                 Cipher cipher = Cipher.getInstance(algorithm);
                 SecretKey secretKey = new SecretKeySpec(key, algorithm);
