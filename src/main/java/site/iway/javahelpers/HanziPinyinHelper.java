@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class HanziPinyinHelper {
 
@@ -33,7 +34,7 @@ public class HanziPinyinHelper {
             mRefsArray[i] = BitConverter.getShort(buffer, i * 4 + 2);
         }
 
-        InputStreamReader pinyinReader = new InputStreamReader(isPinyin, "utf-8");
+        InputStreamReader pinyinReader = new InputStreamReader(isPinyin, StandardCharsets.UTF_8);
         BufferedReader pinyinBufferedReader = new BufferedReader(pinyinReader, 16 * 1024);
         for (int i = 0; i < PINYIN_COUNT; i++) {
             mPinyinArray[i] = pinyinBufferedReader.readLine();

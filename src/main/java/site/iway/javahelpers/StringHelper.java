@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 public class StringHelper {
 
-    private static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+    private static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     public static void setDefaultCharset(Charset defaultCharset) {
         if (defaultCharset == null)
