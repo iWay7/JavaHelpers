@@ -24,7 +24,7 @@ public class StringHelper {
     }
 
     public static boolean nullOrBlank(String string) {
-        if (!nullOrEmpty(string)) {
+        if (nullOrEmpty(string)) {
             return true;
         }
         int length = string.length();
