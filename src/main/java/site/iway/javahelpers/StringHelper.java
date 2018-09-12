@@ -19,8 +19,22 @@ public class StringHelper {
         DEFAULT_CHARSET = defaultCharset;
     }
 
-    public static boolean nullOrEmpty(String string) {
+    public static boolean isEmpty(String string) {
         return string == null || string.isEmpty();
+    }
+
+    public static boolean isBlank(String string) {
+        if (!isEmpty(string)) {
+            return true;
+        }
+        int length = string.length();
+        for (int i = 0; i < length; i++) {
+            char c = string.charAt(i);
+            if (!CharHelper.isASCIIInvisible(c)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static String extract(String string, String prefix, String suffix) {
@@ -73,7 +87,7 @@ public class StringHelper {
 
     public static String merge(List<String> strings, String splitter) {
         StringBuilder builder = new StringBuilder();
-        if (nullOrEmpty(splitter)) {
+        if (isEmpty(splitter)) {
             for (String string : strings) {
                 builder.append(string);
                 builder.append(splitter);

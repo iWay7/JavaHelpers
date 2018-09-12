@@ -18,7 +18,7 @@ public class Prefs {
             int keyLength = key.length();
             if (keyLength == 24) {
                 for (int i = 0; i < keyLength; i++) {
-                    if (key.charAt(i) >= 128) {
+                    if (!CharHelper.isASCII(key.charAt(i))) {
                         throw new RuntimeException("The key can only be ascii codes.");
                     }
                 }

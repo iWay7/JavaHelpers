@@ -28,7 +28,7 @@ public class ObjectSaver {
             int keyLength = key.length();
             if (keyLength == 24) {
                 for (int i = 0; i < keyLength; i++) {
-                    if (key.charAt(i) >= 128) {
+                    if (!CharHelper.isASCII(key.charAt(i))) {
                         throw new RuntimeException("The key can only be ascii codes.");
                     }
                 }
@@ -48,7 +48,7 @@ public class ObjectSaver {
     }
 
     private static void checkName(String name) {
-        if (StringHelper.nullOrEmpty(name)) {
+        if (StringHelper.isEmpty(name)) {
             throw new RuntimeException("The name can not be null or empty.");
         }
     }
