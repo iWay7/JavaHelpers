@@ -48,7 +48,7 @@ public class ObjectSaver {
     }
 
     private static void checkName(String name) {
-        if (StringHelper.isEmpty(name)) {
+        if (StringHelper.nullOrEmpty(name)) {
             throw new RuntimeException("The name can not be null or empty.");
         }
     }

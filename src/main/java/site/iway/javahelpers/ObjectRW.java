@@ -18,7 +18,7 @@ public class ObjectRW {
         try {
             file = new File(filePath);
             fileInputStream = new FileInputStream(file);
-            if (StringHelper.isEmpty(desedeKey)) {
+            if (StringHelper.nullOrEmpty(desedeKey)) {
                 objectInputStream = new ObjectInputStream(fileInputStream);
             } else {
                 byte[] key = desedeKey.getBytes(StandardCharsets.US_ASCII);
@@ -50,7 +50,7 @@ public class ObjectRW {
         try {
             file = new File(filePath);
             fileOutputStream = new FileOutputStream(file);
-            if (StringHelper.isEmpty(desedeKey)) {
+            if (StringHelper.nullOrEmpty(desedeKey)) {
                 objectOutputStream = new ObjectOutputStream(fileOutputStream);
             } else {
                 byte[] key = desedeKey.getBytes(StandardCharsets.US_ASCII);

@@ -19,12 +19,12 @@ public class StringHelper {
         DEFAULT_CHARSET = defaultCharset;
     }
 
-    public static boolean isEmpty(String string) {
+    public static boolean nullOrEmpty(String string) {
         return string == null || string.isEmpty();
     }
 
-    public static boolean isBlank(String string) {
-        if (!isEmpty(string)) {
+    public static boolean nullOrBlank(String string) {
+        if (!nullOrEmpty(string)) {
             return true;
         }
         int length = string.length();
@@ -87,7 +87,7 @@ public class StringHelper {
 
     public static String merge(List<String> strings, String splitter) {
         StringBuilder builder = new StringBuilder();
-        if (isEmpty(splitter)) {
+        if (nullOrEmpty(splitter)) {
             for (String string : strings) {
                 builder.append(string);
                 builder.append(splitter);

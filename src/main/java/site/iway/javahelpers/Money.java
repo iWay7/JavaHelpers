@@ -42,7 +42,7 @@ public class Money implements Serializable {
     }
 
     public Money(String value) {
-        if (StringHelper.isEmpty(value)) {
+        if (StringHelper.nullOrEmpty(value)) {
             value = "0.0";
         }
         setFromDouble(Double.parseDouble(value));
