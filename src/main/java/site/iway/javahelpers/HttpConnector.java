@@ -131,7 +131,6 @@ public class HttpConnector extends Thread {
             } catch (Exception e) {
                 // nothing
             }
-
             if (connection != null) {
                 connection.disconnect();
             }

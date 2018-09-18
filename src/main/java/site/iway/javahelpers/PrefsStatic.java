@@ -19,12 +19,28 @@ public class PrefsStatic {
         sPrefs.putBoolean(key, value);
     }
 
+    public static boolean[] getBooleanArray(String key) {
+        return sPrefs.getObject(key);
+    }
+
+    public static void putBooleanArray(String key, boolean[] value) {
+        sPrefs.putObject(key, value);
+    }
+
     public static byte getByte(String key, byte defValue) {
         return sPrefs.getByte(key, defValue);
     }
 
     public static void putByte(String key, byte value) {
         sPrefs.putByte(key, value);
+    }
+
+    public byte[] getByteArray(String key) {
+        return sPrefs.getObject(key);
+    }
+
+    public static void putByteArray(String key, byte[] value) {
+        sPrefs.putObject(key, value);
     }
 
     public static short getShort(String key, short defValue) {
@@ -35,12 +51,28 @@ public class PrefsStatic {
         sPrefs.putShort(key, value);
     }
 
+    public static short[] getShortArray(String key) {
+        return sPrefs.getObject(key);
+    }
+
+    public static void putShortArray(String key, short[] value) {
+        sPrefs.putObject(key, value);
+    }
+
     public static char getChar(String key, char defValue) {
         return sPrefs.getChar(key, defValue);
     }
 
     public static void putChar(String key, char value) {
         sPrefs.putChar(key, value);
+    }
+
+    public static char[] getCharArray(String key) {
+        return sPrefs.getObject(key);
+    }
+
+    public static void putCharArray(String key, char[] value) {
+        sPrefs.putObject(key, value);
     }
 
     public static float getFloat(String key, float defValue) {
@@ -51,12 +83,28 @@ public class PrefsStatic {
         sPrefs.putFloat(key, value);
     }
 
+    public static float[] getFloatArray(String key) {
+        return sPrefs.getObject(key);
+    }
+
+    public static void putFloatArray(String key, float[] value) {
+        sPrefs.putObject(key, value);
+    }
+
     public static int getInt(String key, int defValue) {
         return sPrefs.getInt(key, defValue);
     }
 
     public static void putInt(String key, int value) {
         sPrefs.putInt(key, value);
+    }
+
+    public static int[] getIntArray(String key) {
+        return sPrefs.getObject(key);
+    }
+
+    public static void putIntArray(String key, int[] value) {
+        sPrefs.putObject(key, value);
     }
 
     public static double getDouble(String key, double defValue) {
@@ -67,6 +115,14 @@ public class PrefsStatic {
         sPrefs.putDouble(key, value);
     }
 
+    public static double[] getDoubleArray(String key) {
+        return sPrefs.getObject(key);
+    }
+
+    public static void putDoubleArray(String key, double[] value) {
+        sPrefs.putObject(key, value);
+    }
+
     public static long getLong(String key, long defValue) {
         return sPrefs.getLong(key, defValue);
     }
@@ -75,11 +131,27 @@ public class PrefsStatic {
         sPrefs.putLong(key, value);
     }
 
-    public static String getString(String name) {
-        return sPrefs.getObject(name);
+    public static long[] getLongArray(String key) {
+        return sPrefs.getObject(key);
+    }
+
+    public static void putLongArray(String key, long value[]) {
+        sPrefs.putObject(key, value);
+    }
+
+    public static String getString(String key) {
+        return sPrefs.getObject(key);
     }
 
     public static void putString(String key, String value) {
+        sPrefs.putObject(key, value);
+    }
+
+    public static String[] getStringArray(String key) {
+        return sPrefs.getObject(key);
+    }
+
+    public static void putStringArray(String key, String[] value) {
         sPrefs.putObject(key, value);
     }
 

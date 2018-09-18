@@ -1,6 +1,7 @@
 package site.iway.javahelpers;
 
 import java.io.File;
+import java.io.Serializable;
 
 public class ObjectSaver {
 
@@ -53,7 +54,7 @@ public class ObjectSaver {
         }
     }
 
-    public static <T> T read(String name) {
+    public static <T extends Serializable> T read(String name) {
         checkName(name);
         if (mNameToMD5) {
             name = StringHelper.md5(name);
@@ -62,13 +63,13 @@ public class ObjectSaver {
         return (T) ObjectRW.read(filePath, mKey);
     }
 
-    public static boolean save(String name, Object obj) {
+    public static boolean save(String name, Serializable object) {
         checkName(name);
         if (mNameToMD5) {
             name = StringHelper.md5(name);
         }
         String filePath = mCachePath + name;
-        return ObjectRW.write(filePath, mKey, obj);
+        return ObjectRW.write(filePath, mKey, object);
     }
 
     public static boolean delete(String name) {

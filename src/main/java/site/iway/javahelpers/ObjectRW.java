@@ -10,7 +10,7 @@ import java.nio.charset.Charset;
 
 public class ObjectRW {
 
-    public static <T> T read(String filePath, String desedeKey) {
+    public static <T extends Serializable> T read(String filePath, String desedeKey) {
         File file = null;
         FileInputStream fileInputStream = null;
         CipherInputStream cipherInputStream = null;
@@ -41,7 +41,7 @@ public class ObjectRW {
         }
     }
 
-    public static boolean write(String filePath, String desedeKey, Object object) {
+    public static boolean write(String filePath, String desedeKey, Serializable object) {
         File file = null;
         FileOutputStream fileOutputStream = null;
         CipherOutputStream cipherOutputStream = null;
