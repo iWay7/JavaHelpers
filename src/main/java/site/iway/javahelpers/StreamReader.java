@@ -3,7 +3,7 @@ package site.iway.javahelpers;
 import java.io.IOException;
 import java.io.InputStream;
 
-public final class StreamReader {
+public class StreamReader {
 
     public static byte[] readAllBytes(InputStream stream, int bufferSize, int limit) throws IOException {
         AutoExpandByteArray autoExpandByteArray = new AutoExpandByteArray(bufferSize);
