@@ -17,7 +17,7 @@ allprojects {
 ```
 dependencies {
     ...
-    api 'com.github.iWay7:JavaHelpers:1.0.18'
+    api 'com.github.iWay7:JavaHelpers:1.0.19'
     api 'com.google.code.gson:gson:2.8.5'
 }
 ```
