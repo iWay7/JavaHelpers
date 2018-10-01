@@ -66,7 +66,7 @@ public class PrefsStatic {
     }
 
     public static float getFloat(String key) {
-        return sPrefs.getFloat(key, 0);
+        return getFloat(key, 0);
     }
 
     public static void putFloat(String key, float value) {
@@ -90,7 +90,7 @@ public class PrefsStatic {
     }
 
     public static double getDouble(String key) {
-        return sPrefs.getDouble(key, 0);
+        return getDouble(key, 0);
     }
 
     public static void putDouble(String key, double value) {
@@ -114,7 +114,7 @@ public class PrefsStatic {
     }
 
     public static String getString(String key) {
-        return getObject(key, null);
+        return getString(key, null);
     }
 
     public static void putString(String key, String value) {
