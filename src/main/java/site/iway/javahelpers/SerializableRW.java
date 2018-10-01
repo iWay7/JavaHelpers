@@ -8,9 +8,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.charset.Charset;
 
-public class ObjectRW {
+public class SerializableRW {
 
-    public static <T extends Serializable> T read(String filePath, String desedeKey) {
+    public static Serializable read(String filePath, String desedeKey) {
         File file = null;
         FileInputStream fileInputStream = null;
         CipherInputStream cipherInputStream = null;
@@ -29,12 +29,14 @@ public class ObjectRW {
                 cipherInputStream = new CipherInputStream(fileInputStream, cipher);
                 objectInputStream = new ObjectInputStream(cipherInputStream);
             }
-            return (T) objectInputStream.readObject();
+            return (Serializable) objectInputStream.readObject();
         } catch (Exception e) {
             return null;
         } finally {
             try {
-                objectInputStream.close();
+                if (objectInputStream != null) {
+                    objectInputStream.close();
+                }
             } catch (Exception e) {
                 // nothing
             }

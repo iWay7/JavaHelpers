@@ -54,13 +54,32 @@ public class ObjectSaver {
         }
     }
 
+    public static <T extends Serializable> T read(String name, Class<T> objectClass) {
+        checkName(name);
+        if (mNameToMD5) {
+            name = StringHelper.md5(name);
+        }
+        String filePath = mCachePath + name;
+        Serializable serializable = SerializableRW.read(filePath, mKey);
+        if (serializable == null) {
+            return null;
+        }
+        Class serializableClass = serializable.getClass();
+        if (serializableClass == objectClass) {
+            return (T) serializable;
+        } else {
+            return null;
+        }
+    }
+
+    @Deprecated
     public static <T extends Serializable> T read(String name) {
         checkName(name);
         if (mNameToMD5) {
             name = StringHelper.md5(name);
         }
         String filePath = mCachePath + name;
-        return (T) ObjectRW.read(filePath, mKey);
+        return (T) SerializableRW.read(filePath, mKey);
     }
 
     public static boolean save(String name, Serializable object) {
@@ -69,7 +88,7 @@ public class ObjectSaver {
             name = StringHelper.md5(name);
         }
         String filePath = mCachePath + name;
-        return ObjectRW.write(filePath, mKey, object);
+        return SerializableRW.write(filePath, mKey, object);
     }
 
     public static boolean delete(String name) {
