@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class Prefs {
 
-    private String mPrefsFile;
-    private String mKey;
-    private PrefsMap mItems;
+    private final String mPrefsFile;
+    private final String mKey;
+    private final PrefsMap mItems;
 
     private volatile boolean mWillCommit;
     private final Object mCommitWaiter;
@@ -68,7 +68,7 @@ public class Prefs {
             return defValue;
         }
         Class valueClass = value.getClass();
-        if (valueClass == objectClass) {
+        if (objectClass.isAssignableFrom(valueClass)) {
             return (T) value;
         } else {
             return defValue;
@@ -83,8 +83,17 @@ public class Prefs {
     }
 
     public <T extends Serializable> void putObject(String key, T value) {
-        mItems.put(key, value);
-        notifyItemChanged();
+        if (key == null) {
+            throw new NullPointerException("The specified key or value is null.");
+        }
+        if (value == null) {
+            remove(key);
+        } else {
+            Object oldValue = mItems.put(key, value);
+            if (oldValue == null || !oldValue.equals(value)) {
+                notifyItemChanged();
+            }
+        }
     }
 
     public boolean getBoolean(String key, boolean defValue) {
@@ -156,8 +165,10 @@ public class Prefs {
     }
 
     public void remove(String key) {
-        mItems.remove(key);
-        notifyItemChanged();
+        Object oldValue = mItems.remove(key);
+        if (oldValue != null) {
+            notifyItemChanged();
+        }
     }
 
 }
