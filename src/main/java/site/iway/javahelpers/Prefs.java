@@ -96,6 +96,17 @@ public class Prefs {
         }
     }
 
+    public boolean contains(String key) {
+        return mItems.containsKey(key);
+    }
+
+    public void remove(String key) {
+        Object oldValue = mItems.remove(key);
+        if (oldValue != null) {
+            notifyItemChanged();
+        }
+    }
+
     public boolean getBoolean(String key, boolean defValue) {
         return getObject(key, defValue, Boolean.class);
     }
@@ -160,15 +171,12 @@ public class Prefs {
         putObject(key, value);
     }
 
-    public boolean contains(String key) {
-        return mItems.contains(key);
+    public String getString(String key, String defValue) {
+        return getObject(key, defValue, String.class);
     }
 
-    public void remove(String key) {
-        Object oldValue = mItems.remove(key);
-        if (oldValue != null) {
-            notifyItemChanged();
-        }
+    public void putString(String key, String value) {
+        putObject(key, value);
     }
 
 }

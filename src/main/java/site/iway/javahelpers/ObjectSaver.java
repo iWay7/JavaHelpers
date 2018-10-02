@@ -48,19 +48,19 @@ public class ObjectSaver {
         initialize(cachePath, false);
     }
 
-    private static void checkName(String name) {
+    private static String getCacheFilePath(String name) {
         if (StringHelper.nullOrEmpty(name)) {
             throw new RuntimeException("The name can not be null or empty.");
         }
-    }
-
-    public static <T extends Serializable> T read(String name, Class<T> objectClass) {
-        checkName(name);
         if (mNameToMD5) {
             name = StringHelper.md5(name);
         }
-        String filePath = mCachePath + name;
-        Serializable serializable = SerializableRW.read(filePath, mKey);
+        return mCachePath + name;
+    }
+
+    public static <T extends Serializable> T read(String name, Class<T> objectClass) {
+        String cacheFilePath = getCacheFilePath(name);
+        Serializable serializable = SerializableRW.read(cacheFilePath, mKey);
         if (serializable == null) {
             return null;
         }
@@ -74,37 +74,23 @@ public class ObjectSaver {
 
     @Deprecated
     public static <T extends Serializable> T read(String name) {
-        checkName(name);
-        if (mNameToMD5) {
-            name = StringHelper.md5(name);
-        }
-        String filePath = mCachePath + name;
-        return (T) SerializableRW.read(filePath, mKey);
+        String cacheFilePath = getCacheFilePath(name);
+        return (T) SerializableRW.read(cacheFilePath, mKey);
     }
 
     public static boolean save(String name, Serializable object) {
-        checkName(name);
-        if (mNameToMD5) {
-            name = StringHelper.md5(name);
-        }
-        String filePath = mCachePath + name;
-        return SerializableRW.write(filePath, mKey, object);
+        String cacheFilePath = getCacheFilePath(name);
+        return SerializableRW.write(cacheFilePath, mKey, object);
     }
 
     public static boolean delete(String name) {
-        checkName(name);
-        if (mNameToMD5) {
-            name = StringHelper.md5(name);
-        }
-        return new File(mCachePath + name).delete();
+        String cacheFilePath = getCacheFilePath(name);
+        return new File(cacheFilePath + name).delete();
     }
 
     public static boolean exists(String name) {
-        checkName(name);
-        if (mNameToMD5) {
-            name = StringHelper.md5(name);
-        }
-        return new File(mCachePath + name).exists();
+        String cacheFilePath = getCacheFilePath(name);
+        return new File(cacheFilePath + name).exists();
     }
 
 }

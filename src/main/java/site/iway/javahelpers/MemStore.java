@@ -1,11 +1,10 @@
 package site.iway.javahelpers;
 
-import java.lang.ref.SoftReference;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MemCache {
+public class MemStore {
 
-    private static final ConcurrentHashMap<String, SoftReference<Object>> MAP;
+    private static final ConcurrentHashMap<String, Object> MAP;
 
     static {
         MAP = new ConcurrentHashMap<>();
@@ -18,15 +17,11 @@ public class MemCache {
         if (value == null)
             remove(key);
         else
-            MAP.put(key, new SoftReference<Object>(value));
+            MAP.put(key, value);
     }
 
     public static <T> T get(String key, T defValue, Class<T> objectClass) {
-        SoftReference<Object> result = MAP.get(key);
-        if (result == null) {
-            return defValue;
-        }
-        Object value = result.get();
+        Object value = MAP.get(key);
         if (value == null) {
             return defValue;
         }

@@ -110,7 +110,7 @@ public class PrefsStatic {
     }
 
     public static String getString(String key, String defValue) {
-        return sPrefs.getObject(key, defValue, String.class);
+        return sPrefs.getString(key, defValue);
     }
 
     public static String getString(String key) {
@@ -118,7 +118,7 @@ public class PrefsStatic {
     }
 
     public static void putString(String key, String value) {
-        sPrefs.putObject(key, value);
+        sPrefs.putString(key, value);
     }
 
     public static <T extends Serializable> T getObject(String key, T defValue, Class<T> objectClass) {
