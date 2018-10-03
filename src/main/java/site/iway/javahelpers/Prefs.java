@@ -1,14 +1,16 @@
 package site.iway.javahelpers;
 
 import java.io.Serializable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Prefs {
 
     private final String mPrefsFile;
     private final String mKey;
-    private final PrefsMap mItems;
+    private final ConcurrentHashMap<String, Object> mItems;
 
-    private volatile boolean mWillCommit;
+    private final AtomicBoolean mWillCommit;
     private final Object mCommitWaiter;
     private final Thread mCommitter;
 
@@ -33,13 +35,13 @@ public class Prefs {
         } else {
             mItems = new PrefsMap();
         }
+        mWillCommit = new AtomicBoolean();
         mCommitWaiter = new Object();
         mCommitter = new Thread() {
             @Override
             public void run() {
                 while (true) {
-                    if (mWillCommit) {
-                        mWillCommit = false;
+                    if (mWillCommit.compareAndSet(true, false)) {
                         PrefsMap copiedItems = new PrefsMap(mItems);
                         SerializableRW.write(mPrefsFile, mKey, copiedItems);
                     } else {
@@ -62,34 +64,34 @@ public class Prefs {
         this(prefsFile, null);
     }
 
-    public <T extends Serializable> T getObject(String key, T defValue, Class<T> objectClass) {
-        Object value = mItems.get(key);
-        if (value == null) {
-            return defValue;
-        }
-        Class valueClass = value.getClass();
-        if (objectClass.isAssignableFrom(valueClass)) {
-            return (T) value;
-        } else {
-            return defValue;
-        }
+    private String buildRealKey(String key, Class valueClass) {
+        String className = valueClass.getSimpleName();
+        return className + ":" + key;
+    }
+
+    private <T extends Serializable> T getObject(String key, Class<T> valueClass, T defValue) {
+        String realKey = buildRealKey(key, valueClass);
+        Object value = mItems.get(realKey);
+        return value == null ? defValue : (T) value;
     }
 
     private void notifyItemChanged() {
-        mWillCommit = true;
+        mWillCommit.set(true);
         synchronized (mCommitWaiter) {
             mCommitWaiter.notify();
         }
     }
 
-    public <T extends Serializable> void putObject(String key, T value) {
+    private <T extends Serializable> void putObject(String key, T value) {
         if (key == null) {
             throw new NullPointerException("The specified key or value is null.");
         }
         if (value == null) {
             remove(key);
         } else {
-            Object oldValue = mItems.put(key, value);
+            Class valueClass = value.getClass();
+            String realKey = buildRealKey(key, valueClass);
+            Object oldValue = mItems.put(realKey, value);
             if (oldValue == null || !oldValue.equals(value)) {
                 notifyItemChanged();
             }
@@ -108,74 +110,146 @@ public class Prefs {
     }
 
     public boolean getBoolean(String key, boolean defValue) {
-        return getObject(key, defValue, Boolean.class);
+        return getObject(key, Boolean.class, defValue);
     }
 
     public void putBoolean(String key, boolean value) {
         putObject(key, value);
     }
 
+    public boolean[] getBooleanArray(String key, boolean[] defValue) {
+        return getObject(key, boolean[].class, defValue);
+    }
+
+    public void putBooleanArray(String key, boolean[] value) {
+        putObject(key, value);
+    }
+
     public byte getByte(String key, byte defValue) {
-        return getObject(key, defValue, Byte.class);
+        return getObject(key, Byte.class, defValue);
     }
 
     public void putByte(String key, byte value) {
         putObject(key, value);
     }
 
+    public byte[] getByteArray(String key, byte[] defValue) {
+        return getObject(key, byte[].class, defValue);
+    }
+
+    public void putByteArray(String key, byte[] value) {
+        putObject(key, value);
+    }
+
     public short getShort(String key, short defValue) {
-        return getObject(key, defValue, Short.class);
+        return getObject(key, Short.class, defValue);
     }
 
     public void putShort(String key, short value) {
         putObject(key, value);
     }
 
+    public short[] getShortArray(String key, short[] defValue) {
+        return getObject(key, short[].class, defValue);
+    }
+
+    public void putShortArray(String key, short[] value) {
+        putObject(key, value);
+    }
+
     public char getChar(String key, char defValue) {
-        return getObject(key, defValue, Character.class);
+        return getObject(key, Character.class, defValue);
     }
 
     public void putChar(String key, char value) {
         putObject(key, value);
     }
 
+    public char[] getCharArray(String key, char[] defValue) {
+        return getObject(key, char[].class, defValue);
+    }
+
+    public void putCharArray(String key, char[] value) {
+        putObject(key, value);
+    }
+
     public float getFloat(String key, float defValue) {
-        return getObject(key, defValue, Float.class);
+        return getObject(key, Float.class, defValue);
     }
 
     public void putFloat(String key, float value) {
         putObject(key, value);
     }
 
+    public float[] getFloatArray(String key, float[] defValue) {
+        return getObject(key, float[].class, defValue);
+    }
+
+    public void putFloatArray(String key, float[] value) {
+        putObject(key, value);
+    }
+
     public int getInt(String key, int defValue) {
-        return getObject(key, defValue, Integer.class);
+        return getObject(key, Integer.class, defValue);
     }
 
     public void putInt(String key, int value) {
         putObject(key, value);
     }
 
+    public int[] getIntArray(String key, int[] defValue) {
+        return getObject(key, int[].class, defValue);
+    }
+
+    public void putIntArray(String key, int[] value) {
+        putObject(key, value);
+    }
+
     public double getDouble(String key, double defValue) {
-        return getObject(key, defValue, Double.class);
+        return getObject(key, Double.class, defValue);
     }
 
     public void putDouble(String key, double value) {
         putObject(key, value);
     }
 
+    public double[] getDoubleArray(String key, double[] defValue) {
+        return getObject(key, double[].class, defValue);
+    }
+
+    public void putDoubleArray(String key, double[] value) {
+        putObject(key, value);
+    }
+
     public long getLong(String key, long defValue) {
-        return getObject(key, defValue, Long.class);
+        return getObject(key, Long.class, defValue);
     }
 
     public void putLong(String key, long value) {
         putObject(key, value);
     }
 
+    public long[] getLongArray(String key, long[] defValue) {
+        return getObject(key, long[].class, defValue);
+    }
+
+    public void putLongArray(String key, long[] value) {
+        putObject(key, value);
+    }
+
     public String getString(String key, String defValue) {
-        return getObject(key, defValue, String.class);
+        return getObject(key, String.class, defValue);
     }
 
     public void putString(String key, String value) {
+        putObject(key, value);
+    }
+
+    public String[] getStringArray(String key, String[] defValue) {
+        return getObject(key, String[].class, defValue);
+    }
+
+    public void putStringArray(String key, String[] value) {
         putObject(key, value);
     }
 

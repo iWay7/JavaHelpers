@@ -3,7 +3,7 @@ package site.iway.javahelpers;
 import java.io.File;
 import java.io.Serializable;
 
-public class ObjectSaver {
+public class ObjectStore {
 
     private static String mCachePath;
     private static boolean mNameToMD5;
@@ -48,7 +48,7 @@ public class ObjectSaver {
         initialize(cachePath, false);
     }
 
-    private static String getCacheFilePath(String name) {
+    private static String getObjectFilePath(String name) {
         if (StringHelper.nullOrEmpty(name)) {
             throw new RuntimeException("The name can not be null or empty.");
         }
@@ -59,13 +59,13 @@ public class ObjectSaver {
     }
 
     public static <T extends Serializable> T read(String name, Class<T> objectClass) {
-        String cacheFilePath = getCacheFilePath(name);
+        String cacheFilePath = getObjectFilePath(name);
         Serializable serializable = SerializableRW.read(cacheFilePath, mKey);
         if (serializable == null) {
             return null;
         }
         Class serializableClass = serializable.getClass();
-        if (serializableClass == objectClass) {
+        if (objectClass.isAssignableFrom(serializableClass)) {
             return (T) serializable;
         } else {
             return null;
@@ -74,22 +74,22 @@ public class ObjectSaver {
 
     @Deprecated
     public static <T extends Serializable> T read(String name) {
-        String cacheFilePath = getCacheFilePath(name);
+        String cacheFilePath = getObjectFilePath(name);
         return (T) SerializableRW.read(cacheFilePath, mKey);
     }
 
-    public static boolean save(String name, Serializable object) {
-        String cacheFilePath = getCacheFilePath(name);
+    public static boolean write(String name, Serializable object) {
+        String cacheFilePath = getObjectFilePath(name);
         return SerializableRW.write(cacheFilePath, mKey, object);
     }
 
     public static boolean delete(String name) {
-        String cacheFilePath = getCacheFilePath(name);
+        String cacheFilePath = getObjectFilePath(name);
         return new File(cacheFilePath + name).delete();
     }
 
     public static boolean exists(String name) {
-        String cacheFilePath = getCacheFilePath(name);
+        String cacheFilePath = getObjectFilePath(name);
         return new File(cacheFilePath + name).exists();
     }
 
