@@ -31,12 +31,8 @@ public class HttpFileDownloader extends HttpConnector {
 
     @Override
     public void onPrepare() throws Exception {
-        File parent = mTempFile.getParentFile();
-        if (!parent.exists()) {
-            boolean result = parent.mkdirs();
-            if (!result) {
-                throw new IOException("Create directory " + parent + " failed");
-            }
+        if (!FileSystemHelper.createDirectory(mTempFile.getParentFile())) {
+            throw new RuntimeException("Create store directory failed.");
         }
         mFileOutputStream = new FileOutputStream(mTempFilePath);
     }

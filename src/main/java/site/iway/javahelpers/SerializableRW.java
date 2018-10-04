@@ -10,13 +10,11 @@ import java.nio.charset.Charset;
 
 public class SerializableRW {
 
-    public static Serializable read(String filePath, String desedeKey) {
-        File file = null;
+    public static Serializable read(File file, String desedeKey) {
         FileInputStream fileInputStream = null;
         CipherInputStream cipherInputStream = null;
         ObjectInputStream objectInputStream = null;
         try {
-            file = new File(filePath);
             fileInputStream = new FileInputStream(file);
             if (StringHelper.nullOrEmpty(desedeKey)) {
                 objectInputStream = new ObjectInputStream(fileInputStream);
@@ -43,14 +41,16 @@ public class SerializableRW {
         }
     }
 
-    public static boolean write(String filePath, String desedeKey, Serializable object) {
-        File file = null;
+    public static Serializable read(String filePath, String desedeKey) {
+        return read(new File(filePath), desedeKey);
+    }
+
+    public static boolean write(File file, String desedeKey, Serializable object) {
         FileOutputStream fileOutputStream = null;
         CipherOutputStream cipherOutputStream = null;
         ObjectOutputStream objectOutputStream = null;
         boolean errorOccured = false;
         try {
-            file = new File(filePath);
             fileOutputStream = new FileOutputStream(file);
             if (StringHelper.nullOrEmpty(desedeKey)) {
                 objectOutputStream = new ObjectOutputStream(fileOutputStream);
@@ -80,6 +80,10 @@ public class SerializableRW {
                 // nothing
             }
         }
+    }
+
+    public static boolean write(String filePath, String desedeKey, Serializable object) {
+        return write(new File(filePath), desedeKey, object);
     }
 
 }
