@@ -1,12 +1,14 @@
 package site.iway.javahelpers;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Prefs {
 
-    private final String mPrefsFile;
+    private final File mPrefsFile;
+    private final File mPrefsFileTemp;
     private final String mKey;
     private final ConcurrentHashMap<String, Object> mItems;
 
@@ -15,7 +17,8 @@ public class Prefs {
     private final Thread mCommitter;
 
     public Prefs(String prefsFile, String key) {
-        mPrefsFile = prefsFile;
+        mPrefsFile = new File(prefsFile);
+        mPrefsFileTemp = new File(prefsFile + ".tmp");
         if (key != null) {
             int keyLength = key.length();
             if (keyLength == 24) {
@@ -29,7 +32,13 @@ public class Prefs {
             }
         }
         mKey = key;
-        Serializable serializable = SerializableRW.read(mPrefsFile, mKey);
+        Serializable serializable = null;
+        if (mPrefsFileTemp.exists()) {
+            serializable = SerializableRW.read(mPrefsFileTemp, mKey);
+        }
+        if (serializable == null && mPrefsFile.exists()) {
+            serializable = SerializableRW.read(mPrefsFile, mKey);
+        }
         if (serializable instanceof PrefsMap) {
             mItems = (PrefsMap) serializable;
         } else {
@@ -42,14 +51,26 @@ public class Prefs {
             public void run() {
                 while (true) {
                     if (mWillCommit.compareAndSet(true, false)) {
+                        do {
+                            try {
+                                sleep(200);
+                            } catch (InterruptedException e) {
+                                // nothing
+                            }
+                        } while (mWillCommit.compareAndSet(true, false));
                         PrefsMap copiedItems = new PrefsMap(mItems);
-                        SerializableRW.write(mPrefsFile, mKey, copiedItems);
+                        if (SerializableRW.write(mPrefsFileTemp, mKey, copiedItems)) {
+                            if (FileSystemHelper.copyFile(mPrefsFileTemp, mPrefsFile)) {
+                                if (!mPrefsFileTemp.delete()) {
+                                    mPrefsFileTemp.deleteOnExit();
+                                }
+                            }
+                        }
                     } else {
                         try {
                             synchronized (mCommitWaiter) {
                                 mCommitWaiter.wait();
                             }
-                            sleep(200);
                         } catch (InterruptedException e) {
                             // nothing
                         }

@@ -1,8 +1,56 @@
 package site.iway.javahelpers;
 
-import java.io.File;
+import java.io.*;
 
 public class FileSystemHelper {
+
+    public static boolean copyFile(File src, File dst, boolean overwrite) {
+        InputStream inputStream = null;
+        OutputStream outputStream = null;
+        try {
+            inputStream = new FileInputStream(src);
+            if (dst.exists() && !overwrite) {
+                throw new IOException("File dst already existed but can not be overwritten.");
+            }
+            outputStream = new FileOutputStream(dst);
+            byte[] buffer = new byte[8 * 1024];
+            int readCount;
+            while ((readCount = inputStream.read(buffer)) > -1) {
+                outputStream.write(buffer, 0, readCount);
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (Exception e) {
+                // nothing
+            }
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (Exception e) {
+                // nothing
+            }
+
+        }
+    }
+
+    public static boolean copyFile(File src, File dst) {
+        return copyFile(src, dst, true);
+    }
+
+    public static boolean copyFile(String src, String dst, boolean overwrite) {
+        return copyFile(new File(src), new File(dst), overwrite);
+    }
+
+    public static boolean copyFile(String src, String dst) {
+        return copyFile(src, dst, true);
+    }
 
     public static boolean createDirectory(File directory) {
         if (directory.exists())
