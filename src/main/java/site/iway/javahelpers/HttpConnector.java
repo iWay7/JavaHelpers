@@ -85,7 +85,6 @@ public class HttpConnector extends Thread {
     @Override
     public void run() {
         HttpURLConnection connection = null;
-        InputStream inputStream = null;
         try {
             onPrepare();
             connection = createConnection(false);
@@ -102,8 +101,9 @@ public class HttpConnector extends Thread {
             if (connection.getDoInput()) {
                 mContentLength = connection.getContentLength();
                 mDownloadedLength = 0;
-                inputStream = connection.getInputStream();
+                InputStream inputStream = connection.getInputStream();
                 byte[] buffer = new byte[mBufferSize];
+                long totalReadCount = 0;
                 while (true) {
                     int readCount = inputStream.read(buffer);
                     if (mIsCanceled) {
@@ -111,9 +111,10 @@ public class HttpConnector extends Thread {
                         break;
                     } else if (readCount > 0) {
                         onDataDownloaded(buffer, 0, readCount);
-                        mDownloadedLength += readCount;
+                        totalReadCount += readCount;
+                        mDownloadedLength = totalReadCount;
                     } else if (readCount == 0) {
-                        sleep(10);
+                        sleep(100);
                     } else {
                         break;
                     }
@@ -124,13 +125,6 @@ public class HttpConnector extends Thread {
             onError(e);
         } finally {
             onFinally();
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (Exception e) {
-                // nothing
-            }
             if (connection != null) {
                 connection.disconnect();
             }
