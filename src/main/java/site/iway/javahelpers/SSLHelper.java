@@ -12,7 +12,6 @@ import java.security.cert.CertificateFactory;
 /**
  * Created by iWay on 2018/2/1.
  */
-
 public class SSLHelper {
 
     private static TrustManager[] combine(TrustManager[]... arrays) {
@@ -22,7 +21,7 @@ public class SSLHelper {
         }
         TrustManager[] newArray = new TrustManager[totalLength];
         int pointer = 0;
-        for (Object[] objects : arrays) {
+        for (TrustManager[] objects : arrays) {
             System.arraycopy(objects, 0, newArray, pointer, objects.length);
             pointer += objects.length;
         }

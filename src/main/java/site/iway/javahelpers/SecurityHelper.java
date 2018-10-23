@@ -3,10 +3,14 @@ package site.iway.javahelpers;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.KeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.zip.CRC32;
 
@@ -36,11 +40,38 @@ public class SecurityHelper {
         return crc32.getValue();
     }
 
+    private static final String AES_ALGORITHM = "AES";
+    private static final String AES_TRANSFORMATION = "AES/ECB/PKCS5Padding";
+
+    public static byte[] aesEncrypt(byte[] data, byte[] key) {
+        try {
+            SecretKey secretKey = new SecretKeySpec(key, AES_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(AES_TRANSFORMATION);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static byte[] aesDecrypt(byte[] data, byte[] key) {
+        try {
+            SecretKey secretKey = new SecretKeySpec(key, AES_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(AES_TRANSFORMATION);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static final String TRIPLE_DES_ALGORITHM = "DESede";
+    private static final String TRIPLE_DES_TRANSFORMATION = "DESede/ECB/PKCS5Padding";
+
     public static byte[] tripleDESEncrypt(byte[] data, byte[] key) {
         try {
-            String algorithm = "DESede";
-            SecretKey secretKey = new SecretKeySpec(key, algorithm);
-            Cipher cipher = Cipher.getInstance(algorithm);
+            SecretKey secretKey = new SecretKeySpec(key, TRIPLE_DES_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(TRIPLE_DES_TRANSFORMATION);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             return cipher.doFinal(data);
         } catch (Exception e) {
@@ -50,9 +81,8 @@ public class SecurityHelper {
 
     public static byte[] tripleDESDecrypt(byte[] data, byte[] key) {
         try {
-            String algorithm = "DESede";
-            SecretKey secretKey = new SecretKeySpec(key, algorithm);
-            Cipher cipher = Cipher.getInstance(algorithm);
+            SecretKey secretKey = new SecretKeySpec(key, TRIPLE_DES_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(TRIPLE_DES_TRANSFORMATION);
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             return cipher.doFinal(data);
         } catch (Exception e) {
@@ -60,43 +90,93 @@ public class SecurityHelper {
         }
     }
 
+    private static final String RSA_ALGORITHM = "RSA";
+    private static final String RSA_TRANSFORMATION = "RSA/ECB/PKCS1Padding";
+
+    public static final int KEY_TYPE_X509 = 0;
+    public static final int KEY_TYPE_PKCS8 = 1;
+
+    private static KeySpec getKeySpec(byte[] key, int keyType) {
+        switch (keyType) {
+            case KEY_TYPE_X509:
+                return new X509EncodedKeySpec(key);
+            case KEY_TYPE_PKCS8:
+                return new PKCS8EncodedKeySpec(key);
+            default:
+                return null;
+        }
+    }
+
     public static byte[] rsaEncryptPublicKey(byte[] data, byte[] publicKey) {
         try {
-            String algorithm = "RSA";
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
-            X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKey);
-            RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(x509EncodedKeySpec);
-            Cipher cipher = Cipher.getInstance(algorithm);
+            KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
+            KeySpec keySpec = new X509EncodedKeySpec(publicKey);
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+            Cipher cipher = Cipher.getInstance(RSA_TRANSFORMATION);
             cipher.init(Cipher.ENCRYPT_MODE, rsaPublicKey);
-            return cipher.doFinal(data);
+            ByteArrayOutputStream dstStream = new ByteArrayOutputStream();
+            BigInteger modulus = rsaPublicKey.getModulus();
+            int keyLength = modulus.bitLength();
+            int dataBlockSize = keyLength / 8 - 11;
+            for (int offset = 0; offset < data.length; offset += dataBlockSize) {
+                int count = dataBlockSize;
+                if (count + offset > data.length) {
+                    count = data.length - offset;
+                }
+                byte[] dstPart = cipher.doFinal(data, offset, count);
+                dstStream.write(dstPart);
+            }
+            return dstStream.toByteArray();
         } catch (Exception e) {
             return null;
         }
     }
 
-    public static byte[] rsaDecryptPrivateKey(byte[] data, byte[] privateKey) {
+    public static byte[] rsaDecryptPrivateKey(byte[] data, byte[] privateKey, int keyType) {
         try {
-            String algorithm = "RSA";
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
-            X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(privateKey);
-            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) keyFactory.generatePrivate(x509EncodedKeySpec);
-            Cipher cipher = Cipher.getInstance(algorithm);
+            KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
+            KeySpec keySpec = getKeySpec(privateKey, keyType);
+            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+            Cipher cipher = Cipher.getInstance(RSA_TRANSFORMATION);
             cipher.init(Cipher.DECRYPT_MODE, rsaPrivateKey);
-            return cipher.doFinal(data);
+            ByteArrayOutputStream dstStream = new ByteArrayOutputStream();
+            BigInteger modulus = rsaPrivateKey.getModulus();
+            int keyLength = modulus.bitLength();
+            int dataBlockSize = keyLength / 8;
+            for (int offset = 0; offset < data.length; offset += dataBlockSize) {
+                int count = dataBlockSize;
+                if (count + offset > data.length) {
+                    count = data.length - offset;
+                }
+                byte[] dstPart = cipher.doFinal(data, offset, count);
+                dstStream.write(dstPart);
+            }
+            return dstStream.toByteArray();
         } catch (Exception e) {
             return null;
         }
     }
 
-    public static byte[] rsaEncryptPrivateKey(byte[] data, byte[] privateKey) {
+    public static byte[] rsaEncryptPrivateKey(byte[] data, byte[] privateKey, int keyType) {
         try {
-            String algorithm = "RSA";
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
-            X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(privateKey);
-            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) keyFactory.generatePublic(x509EncodedKeySpec);
-            Cipher cipher = Cipher.getInstance(algorithm);
+            KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
+            KeySpec keySpec = getKeySpec(privateKey, keyType);
+            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+            Cipher cipher = Cipher.getInstance(RSA_TRANSFORMATION);
             cipher.init(Cipher.ENCRYPT_MODE, rsaPrivateKey);
-            return cipher.doFinal(data);
+            ByteArrayOutputStream dstStream = new ByteArrayOutputStream();
+            BigInteger modulus = rsaPrivateKey.getModulus();
+            int keyLength = modulus.bitLength();
+            int dataBlockSize = keyLength / 8 - 11;
+            for (int offset = 0; offset < data.length; offset += dataBlockSize) {
+                int count = dataBlockSize;
+                if (count + offset > data.length) {
+                    count = data.length - offset;
+                }
+                byte[] dstPart = cipher.doFinal(data, offset, count);
+                dstStream.write(dstPart);
+            }
+            return dstStream.toByteArray();
         } catch (Exception e) {
             return null;
         }
@@ -104,13 +184,24 @@ public class SecurityHelper {
 
     public static byte[] rsaDecryptPublicKey(byte[] data, byte[] publicKey) {
         try {
-            String algorithm = "RSA";
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
-            X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKey);
-            RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePrivate(x509EncodedKeySpec);
-            Cipher cipher = Cipher.getInstance(algorithm);
+            KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
+            KeySpec keySpec = new X509EncodedKeySpec(publicKey);
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+            Cipher cipher = Cipher.getInstance(RSA_TRANSFORMATION);
             cipher.init(Cipher.DECRYPT_MODE, rsaPublicKey);
-            return cipher.doFinal(data);
+            ByteArrayOutputStream dstStream = new ByteArrayOutputStream();
+            BigInteger modulus = rsaPublicKey.getModulus();
+            int keyLength = modulus.bitLength();
+            int dataBlockSize = keyLength / 8;
+            for (int offset = 0; offset < data.length; offset += dataBlockSize) {
+                int count = dataBlockSize;
+                if (count + offset > data.length) {
+                    count = data.length - offset;
+                }
+                byte[] dstPart = cipher.doFinal(data, offset, count);
+                dstStream.write(dstPart);
+            }
+            return dstStream.toByteArray();
         } catch (Exception e) {
             return null;
         }
