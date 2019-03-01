@@ -132,13 +132,33 @@ public class StringHelper {
         return padRight(content, length, ' ');
     }
 
-    private static final char[] sRandomChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+    private static final char[] RANDOM_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+    private static final char[] RANDOM_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+    private static final char[] RANDOM_NUMBERS = "0123456789".toCharArray();
 
     public static String random(int length) {
         Random random = new Random(System.nanoTime());
         char[] array = new char[length];
         for (int i = 0; i < length; i++) {
-            array[i] = sRandomChars[random.nextInt(sRandomChars.length)];
+            array[i] = RANDOM_CHARS[random.nextInt(RANDOM_CHARS.length)];
+        }
+        return new String(array);
+    }
+
+    public static String randomOnlyLetters(int length) {
+        Random random = new Random(System.nanoTime());
+        char[] array = new char[length];
+        for (int i = 0; i < length; i++) {
+            array[i] = RANDOM_LETTERS[random.nextInt(RANDOM_LETTERS.length)];
+        }
+        return new String(array);
+    }
+
+    public static String randomOnlyNumberss(int length) {
+        Random random = new Random(System.nanoTime());
+        char[] array = new char[length];
+        for (int i = 0; i < length; i++) {
+            array[i] = RANDOM_NUMBERS[random.nextInt(RANDOM_NUMBERS.length)];
         }
         return new String(array);
     }
@@ -147,9 +167,6 @@ public class StringHelper {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
     }
-
-    private static final char[] sHexCharsLowerCase = "0123456789abcdef".toCharArray();
-    private static final char[] sHexCharsUpperCase = "0123456789ABCDEF".toCharArray();
 
     public static String hex(byte[] data, boolean lowerCase) {
         return SecurityHelper.hexEncode(data, lowerCase);

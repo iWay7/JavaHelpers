@@ -10,6 +10,7 @@ public class CalendarHelper {
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String DATE_TIME_FORMAT_WINDOWS = "yyyy/MM/dd HH:mm:ss";
     public static final String DATE_FORMAT = "yyyy-MM-dd";
+    public static final String DATE_FORMAT_WINDOWS = "yyyy/MM/dd";
     public static final String TIME_FORMAT = "HH:mm:ss";
 
     public static final TimeZone TIME_ZONE = TimeZone.getDefault();
@@ -62,9 +63,12 @@ public class CalendarHelper {
 
     public static Calendar fromString(String s) {
         Calendar calendar = fromString(s, DATE_TIME_FORMAT);
-        if (calendar == null) {
+        if (calendar == null)
             calendar = fromString(s, DATE_TIME_FORMAT_WINDOWS);
-        }
+        if (calendar == null)
+            calendar = fromString(s, DATE_FORMAT);
+        if (calendar == null)
+            calendar = fromString(s, DATE_FORMAT_WINDOWS);
         return calendar;
     }
 

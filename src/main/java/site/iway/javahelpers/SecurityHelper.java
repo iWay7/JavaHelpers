@@ -95,8 +95,8 @@ public class SecurityHelper {
         }
     }
 
-    private static final char[] sHexCharsLowerCase = "0123456789abcdef".toCharArray();
-    private static final char[] sHexCharsUpperCase = "0123456789ABCDEF".toCharArray();
+    private static final char[] HEX_CHARS_LOWER_CASE = "0123456789abcdef".toCharArray();
+    private static final char[] HEX_CHARS_UPPER_CASE = "0123456789ABCDEF".toCharArray();
 
     public static String hexEncode(byte[] data, boolean lowerCase) {
         if (data == null) {
@@ -105,13 +105,13 @@ public class SecurityHelper {
         char[] chars = new char[data.length * 2];
         if (lowerCase) {
             for (int i = 0; i < data.length; i++) {
-                chars[i * 2] = sHexCharsLowerCase[(data[i] & 0xF0) >> 4];
-                chars[i * 2 + 1] = sHexCharsLowerCase[data[i] & 0x0F];
+                chars[i * 2] = HEX_CHARS_LOWER_CASE[(data[i] & 0xF0) >> 4];
+                chars[i * 2 + 1] = HEX_CHARS_LOWER_CASE[data[i] & 0x0F];
             }
         } else {
             for (int i = 0; i < data.length; i++) {
-                chars[i * 2] = sHexCharsUpperCase[(data[i] & 0xF0) >> 4];
-                chars[i * 2 + 1] = sHexCharsUpperCase[data[i] & 0x0F];
+                chars[i * 2] = HEX_CHARS_UPPER_CASE[(data[i] & 0xF0) >> 4];
+                chars[i * 2 + 1] = HEX_CHARS_UPPER_CASE[data[i] & 0x0F];
             }
         }
         return new String(chars);
