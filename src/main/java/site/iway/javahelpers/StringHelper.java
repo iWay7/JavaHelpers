@@ -154,7 +154,7 @@ public class StringHelper {
         return new String(array);
     }
 
-    public static String randomOnlyNumberss(int length) {
+    public static String randomOnlyNumbers(int length) {
         Random random = new Random(System.nanoTime());
         char[] array = new char[length];
         for (int i = 0; i < length; i++) {
