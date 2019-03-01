@@ -6,38 +6,28 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class SerializableRW {
 
     public static Serializable read(File file, String desedeKey) {
-        FileInputStream fileInputStream = null;
-        CipherInputStream cipherInputStream = null;
-        ObjectInputStream objectInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(file);
+        try (FileInputStream fileInputStream = new FileInputStream(file);
+             BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
             if (StringHelper.nullOrEmpty(desedeKey)) {
-                objectInputStream = new ObjectInputStream(fileInputStream);
+                ObjectInputStream objectInputStream = new ObjectInputStream(bufferedInputStream);
+                return (Serializable) objectInputStream.readObject();
             } else {
-                byte[] key = desedeKey.getBytes(Charset.forName("US-ASCII"));
+                byte[] key = desedeKey.getBytes(StandardCharsets.US_ASCII);
                 String algorithm = "DESede";
                 Cipher cipher = Cipher.getInstance(algorithm);
                 SecretKey secretKey = new SecretKeySpec(key, algorithm);
                 cipher.init(Cipher.DECRYPT_MODE, secretKey);
-                cipherInputStream = new CipherInputStream(fileInputStream, cipher);
-                objectInputStream = new ObjectInputStream(cipherInputStream);
+                CipherInputStream cipherInputStream = new CipherInputStream(bufferedInputStream, cipher);
+                ObjectInputStream objectInputStream = new ObjectInputStream(cipherInputStream);
+                return (Serializable) objectInputStream.readObject();
             }
-            return (Serializable) objectInputStream.readObject();
         } catch (Exception e) {
             return null;
-        } finally {
-            try {
-                if (objectInputStream != null) {
-                    objectInputStream.close();
-                }
-            } catch (Exception e) {
-                // nothing
-            }
         }
     }
 
@@ -46,33 +36,28 @@ public class SerializableRW {
     }
 
     public static boolean write(File file, String desedeKey, Serializable object) {
-        FileOutputStream fileOutputStream = null;
-        CipherOutputStream cipherOutputStream = null;
-        ObjectOutputStream objectOutputStream = null;
         boolean errorOccured = false;
-        try {
-            fileOutputStream = new FileOutputStream(file);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(file);
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream)) {
             if (StringHelper.nullOrEmpty(desedeKey)) {
-                objectOutputStream = new ObjectOutputStream(fileOutputStream);
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(bufferedOutputStream);
+                objectOutputStream.writeObject(object);
             } else {
-                byte[] key = desedeKey.getBytes(Charset.forName("US-ASCII"));
+                byte[] key = desedeKey.getBytes(StandardCharsets.US_ASCII);
                 String algorithm = "DESede";
                 Cipher cipher = Cipher.getInstance(algorithm);
                 SecretKey secretKey = new SecretKeySpec(key, algorithm);
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                cipherOutputStream = new CipherOutputStream(fileOutputStream, cipher);
-                objectOutputStream = new ObjectOutputStream(cipherOutputStream);
+                CipherOutputStream cipherOutputStream = new CipherOutputStream(bufferedOutputStream, cipher);
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(cipherOutputStream);
+                objectOutputStream.writeObject(object);
             }
-            objectOutputStream.writeObject(object);
             return true;
         } catch (Exception e) {
             errorOccured = true;
             return false;
         } finally {
             try {
-                if (objectOutputStream != null) {
-                    objectOutputStream.close();
-                }
                 if (file != null && errorOccured) {
                     file.delete();
                 }

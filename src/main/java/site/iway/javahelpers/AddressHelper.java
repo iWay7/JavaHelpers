@@ -2,6 +2,7 @@ package site.iway.javahelpers;
 
 import com.google.gson.Gson;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -75,30 +76,13 @@ public class AddressHelper {
     }
 
     public static Country loadChina() {
-        InputStream inputStream = null;
-        InputStreamReader inputStreamReader = null;
-        try {
-            inputStream = AddressHelper.class.getResourceAsStream("/china.dat");
-            inputStreamReader = new InputStreamReader(inputStream);
+        try (InputStream inputStream = AddressHelper.class.getResourceAsStream("/china.dat");
+             BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+             InputStreamReader inputStreamReader = new InputStreamReader(bufferedInputStream)) {
             Gson gson = new Gson();
             return gson.fromJson(inputStreamReader, Country.class);
         } catch (Exception e) {
             return null;
-        } finally {
-            try {
-                if (inputStreamReader != null) {
-                    inputStreamReader.close();
-                }
-            } catch (Exception e) {
-                // nothing
-            }
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (Exception e) {
-                // nothing
-            }
         }
     }
 

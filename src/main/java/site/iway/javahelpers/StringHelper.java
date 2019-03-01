@@ -1,9 +1,7 @@
 package site.iway.javahelpers;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +9,7 @@ import java.util.UUID;
 
 public class StringHelper {
 
-    private static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+    private static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     public static void setDefaultCharset(Charset defaultCharset) {
         if (defaultCharset == null)
@@ -154,58 +152,15 @@ public class StringHelper {
     private static final char[] sHexCharsUpperCase = "0123456789ABCDEF".toCharArray();
 
     public static String hex(byte[] data, boolean lowerCase) {
-        if (data == null) {
-            return null;
-        }
-        char[] chars = new char[data.length * 2];
-        if (lowerCase) {
-            for (int i = 0; i < data.length; i++) {
-                chars[i * 2] = sHexCharsLowerCase[(data[i] & 0xF0) >> 4];
-                chars[i * 2 + 1] = sHexCharsLowerCase[data[i] & 0x0F];
-            }
-        } else {
-            for (int i = 0; i < data.length; i++) {
-                chars[i * 2] = sHexCharsUpperCase[(data[i] & 0xF0) >> 4];
-                chars[i * 2 + 1] = sHexCharsUpperCase[data[i] & 0x0F];
-            }
-        }
-        return new String(chars);
+        return SecurityHelper.hexEncode(data, lowerCase);
     }
 
     public static String hex(byte[] data) {
         return hex(data, true);
     }
 
-    private static int toInt(char c) {
-        if (c >= '0' && c <= '9') {
-            return c - '0';
-        } else if (c >= 'a' && c <= 'f') {
-            return c - 'a' + 10;
-        } else if (c >= 'A' && c <= 'F') {
-            return c - 'A' + 10;
-        } else {
-            throw new RuntimeException("Invalid hex char.");
-        }
-    }
-
-    private static byte toByte(String hex, int index) {
-        return (byte) ((toInt(hex.charAt(index)) << 4) | toInt(hex.charAt(index + 1)));
-    }
-
     public static byte[] binary(String hex) {
-        if (hex == null) {
-            return null;
-        }
-        int stringLength = hex.length();
-        if (stringLength % 2 != 0) {
-            throw new RuntimeException("Invalid hex string.");
-        }
-        int length = hex.length() / 2;
-        byte[] data = new byte[length];
-        for (int i = 0; i < length; i++) {
-            data[i] = toByte(hex, i * 2);
-        }
-        return data;
+        return SecurityHelper.hexDecode(hex);
     }
 
     public static String md5(String content, Charset charset) {
@@ -248,14 +203,7 @@ public class StringHelper {
     }
 
     public static String urlEncode(String content, Charset charset) {
-        if (content == null) {
-            return null;
-        }
-        try {
-            return URLEncoder.encode(content, charset.name());
-        } catch (UnsupportedEncodingException e) {
-            return "";
-        }
+        return SecurityHelper.urlEncode(content, charset);
     }
 
     public static String urlEncode(String content) {
@@ -263,14 +211,7 @@ public class StringHelper {
     }
 
     public static String urlDecode(String content, Charset charset) {
-        if (content == null) {
-            return null;
-        }
-        try {
-            return URLDecoder.decode(content, charset.name());
-        } catch (UnsupportedEncodingException e) {
-            return "";
-        }
+        return SecurityHelper.urlEncode(content, charset);
     }
 
     public static String urlDecode(String content) {

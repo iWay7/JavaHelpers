@@ -4,7 +4,12 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.interfaces.RSAPrivateKey;
@@ -12,9 +17,23 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.Base64.Decoder;
+import java.util.Base64.Encoder;
 import java.util.zip.CRC32;
 
+/**
+ * @author iWay
+ */
 public class SecurityHelper {
+
+    private static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+
+    public static void setDefaultCharset(Charset defaultCharset) {
+        if (defaultCharset == null)
+            throw new NullPointerException("Param defaultCharset can not be null.");
+        DEFAULT_CHARSET = defaultCharset;
+    }
 
     public static byte[] md5(byte[] data) {
         try {
@@ -38,6 +57,102 @@ public class SecurityHelper {
         CRC32 crc32 = new CRC32();
         crc32.update(data);
         return crc32.getValue();
+    }
+
+    public static String base64Encode(byte[] bytes) {
+        Encoder encoder = Base64.getEncoder();
+        return encoder.encodeToString(bytes);
+    }
+
+    public static byte[] base64Decode(String string) {
+        Decoder decoder = Base64.getDecoder();
+        return decoder.decode(string);
+    }
+
+    public static String urlEncode(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        try {
+            return URLEncoder.encode(content, charset.name());
+        } catch (UnsupportedEncodingException e) {
+            return "";
+        }
+    }
+
+    public static String urlEncode(String content) {
+        return urlEncode(content, DEFAULT_CHARSET);
+    }
+
+    public static String urlDecode(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        try {
+            return URLDecoder.decode(content, charset.name());
+        } catch (UnsupportedEncodingException e) {
+            return "";
+        }
+    }
+
+    private static final char[] sHexCharsLowerCase = "0123456789abcdef".toCharArray();
+    private static final char[] sHexCharsUpperCase = "0123456789ABCDEF".toCharArray();
+
+    public static String hexEncode(byte[] data, boolean lowerCase) {
+        if (data == null) {
+            return null;
+        }
+        char[] chars = new char[data.length * 2];
+        if (lowerCase) {
+            for (int i = 0; i < data.length; i++) {
+                chars[i * 2] = sHexCharsLowerCase[(data[i] & 0xF0) >> 4];
+                chars[i * 2 + 1] = sHexCharsLowerCase[data[i] & 0x0F];
+            }
+        } else {
+            for (int i = 0; i < data.length; i++) {
+                chars[i * 2] = sHexCharsUpperCase[(data[i] & 0xF0) >> 4];
+                chars[i * 2 + 1] = sHexCharsUpperCase[data[i] & 0x0F];
+            }
+        }
+        return new String(chars);
+    }
+
+    public static String hexEncode(byte[] data) {
+        return hexEncode(data, true);
+    }
+
+    private static int hexDecode(char c) {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        } else if (c >= 'a' && c <= 'f') {
+            return c - 'a' + 10;
+        } else if (c >= 'A' && c <= 'F') {
+            return c - 'A' + 10;
+        } else {
+            throw new RuntimeException("Invalid hex char.");
+        }
+    }
+
+    public static byte[] hexDecode(String hex) {
+        if (hex == null) {
+            return null;
+        }
+        int stringLength = hex.length();
+        if (stringLength % 2 != 0) {
+            throw new RuntimeException("Invalid hex string.");
+        }
+        int length = hex.length() / 2;
+        byte[] data = new byte[length];
+        for (int i = 0; i < length; i++) {
+            int left = hexDecode(hex.charAt(i)) << 4;
+            int right = hexDecode(hex.charAt(i + 1));
+            data[i] = (byte) (left | right);
+        }
+        return data;
+    }
+
+    public static String urlDecode(String content) {
+        return urlDecode(content, DEFAULT_CHARSET);
     }
 
     private static final String AES_ALGORITHM = "AES";
@@ -93,6 +208,11 @@ public class SecurityHelper {
     private static final String RSA_ALGORITHM = "RSA";
     private static final String RSA_TRANSFORMATION = "RSA/ECB/PKCS1Padding";
 
+    private static final String RSA_PUBLIC_KEY_START_TAG = "-----BEGIN PUBLIC KEY-----";
+    private static final String RSA_PUBLIC_KEY_END_TAG = "-----END PUBLIC KEY-----";
+    private static final String RSA_PRIVATE_KEY_START_TAG = "-----BEGIN PRIVATE KEY-----";
+    private static final String RSA_PRIVATE_KEY_END_TAG = "-----END PRIVATE KEY-----";
+
     public static final int KEY_TYPE_X509 = 0;
     public static final int KEY_TYPE_PKCS8 = 1;
 
@@ -105,6 +225,26 @@ public class SecurityHelper {
             default:
                 return null;
         }
+    }
+
+    private static byte[] decodePublicKeyData(String publicKey) {
+        publicKey = publicKey.replace("\n", "");
+        publicKey = StringHelper.extract(publicKey, RSA_PUBLIC_KEY_START_TAG, RSA_PUBLIC_KEY_END_TAG);
+        if (publicKey == null) {
+            return null;
+        }
+        Decoder decoder = Base64.getDecoder();
+        return decoder.decode(publicKey);
+    }
+
+    private static byte[] decodePrivateKeyData(String privateKey) {
+        privateKey = privateKey.replace("\n", "");
+        privateKey = StringHelper.extract(privateKey, RSA_PRIVATE_KEY_START_TAG, RSA_PRIVATE_KEY_END_TAG);
+        if (privateKey == null) {
+            return null;
+        }
+        Decoder decoder = Base64.getDecoder();
+        return decoder.decode(privateKey);
     }
 
     public static byte[] rsaEncryptPublicKey(byte[] data, byte[] publicKey) {
@@ -132,6 +272,10 @@ public class SecurityHelper {
         }
     }
 
+    public static byte[] rsaEncryptPublicKey(byte[] data, String publicKey) {
+        return rsaEncryptPublicKey(data, decodePublicKeyData(publicKey));
+    }
+
     public static byte[] rsaDecryptPrivateKey(byte[] data, byte[] privateKey, int keyType) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
@@ -155,6 +299,10 @@ public class SecurityHelper {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static byte[] rsaDecryptPrivateKey(byte[] data, String privateKey, int keyType) {
+        return rsaDecryptPrivateKey(data, decodePrivateKeyData(privateKey), keyType);
     }
 
     public static byte[] rsaEncryptPrivateKey(byte[] data, byte[] privateKey, int keyType) {
@@ -182,6 +330,10 @@ public class SecurityHelper {
         }
     }
 
+    public static byte[] rsaEncryptPrivateKey(byte[] data, String privateKey, int keyType) {
+        return rsaEncryptPrivateKey(data, decodePrivateKeyData(privateKey), keyType);
+    }
+
     public static byte[] rsaDecryptPublicKey(byte[] data, byte[] publicKey) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
@@ -205,6 +357,10 @@ public class SecurityHelper {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static byte[] rsaDecryptPublicKey(byte[] data, String publicKey) {
+        return rsaDecryptPublicKey(data, decodePublicKeyData(publicKey));
     }
 
 }

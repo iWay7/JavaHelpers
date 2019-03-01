@@ -2,12 +2,13 @@ package site.iway.javahelpers;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TextRW {
 
-    private static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+    private static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     public static void setDefaultCharset(Charset defaultCharset) {
         if (defaultCharset == null)
