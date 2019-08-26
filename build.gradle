@@ -1,5 +1,5 @@
 group 'site.iway'
-version '1.0.31'
+version '1.0.32'
 
 apply plugin: 'java'
 
@@ -11,4 +11,9 @@ repositories {
 
 dependencies {
     compileOnly 'com.google.code.gson:gson:2.8.5'
+    compileOnly 'com.google.zxing:core:3.3.1'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }

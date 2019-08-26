@@ -2,6 +2,7 @@ package site.iway.javahelpers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public class StreamReader {
 
@@ -39,6 +40,13 @@ public class StreamReader {
             offset += stream.read(result, offset, count - offset);
         }
         return result;
+    }
+
+    public static void readTo(InputStream inputStream, OutputStream outputStream) throws IOException {
+        int n;
+        while ((n = inputStream.read()) > -1) {
+            outputStream.write(n);
+        }
     }
 
 }

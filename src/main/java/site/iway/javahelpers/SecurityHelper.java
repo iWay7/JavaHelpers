@@ -44,6 +44,19 @@ public class SecurityHelper {
         }
     }
 
+    public static String md5(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        byte[] data = content.getBytes(charset);
+        byte[] md5 = md5(data);
+        return hexEncode(md5);
+    }
+
+    public static String md5(String content) {
+        return md5(content, DEFAULT_CHARSET);
+    }
+
     public static byte[] sha1(byte[] data) {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
@@ -53,10 +66,40 @@ public class SecurityHelper {
         }
     }
 
+    public static String sha1(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        byte[] data = content.getBytes(charset);
+        byte[] sha1 = sha1(data);
+        return hexEncode(sha1);
+    }
+
+    public static String sha1(String content) {
+        return sha1(content, DEFAULT_CHARSET);
+    }
+
     public static long crc32(byte[] data) {
         CRC32 crc32 = new CRC32();
         crc32.update(data);
         return crc32.getValue();
+    }
+
+    public static String crc32(String content, Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        byte[] data = content.getBytes(charset);
+        long crc32 = crc32(data);
+        StringBuilder builder = new StringBuilder(Long.toHexString(crc32));
+        while (builder.length() < 8) {
+            builder.insert(0, '0');
+        }
+        return builder.toString();
+    }
+
+    public static String crc32(String content) {
+        return crc32(content, DEFAULT_CHARSET);
     }
 
     public static String base64Encode(byte[] bytes) {
@@ -76,7 +119,7 @@ public class SecurityHelper {
         try {
             return URLEncoder.encode(content, charset.name());
         } catch (UnsupportedEncodingException e) {
-            return "";
+            return null;
         }
     }
 
@@ -91,8 +134,12 @@ public class SecurityHelper {
         try {
             return URLDecoder.decode(content, charset.name());
         } catch (UnsupportedEncodingException e) {
-            return "";
+            return null;
         }
+    }
+
+    public static String urlDecode(String content) {
+        return urlDecode(content, DEFAULT_CHARSET);
     }
 
     private static final char[] HEX_CHARS_LOWER_CASE = "0123456789abcdef".toCharArray();
@@ -119,6 +166,14 @@ public class SecurityHelper {
 
     public static String hexEncode(byte[] data) {
         return hexEncode(data, true);
+    }
+
+    public static String hexEncodeFromString(String content, Charset charset) {
+        return hexEncode(content.getBytes(charset), true);
+    }
+
+    public static String hexEncodeFromString(String content) {
+        return hexEncodeFromString(content, DEFAULT_CHARSET);
     }
 
     private static int hexDecode(char c) {
@@ -151,8 +206,15 @@ public class SecurityHelper {
         return data;
     }
 
-    public static String urlDecode(String content) {
-        return urlDecode(content, DEFAULT_CHARSET);
+    public static String hexDecodeToString(String hex, Charset charset) {
+        if (hex == null) {
+            return null;
+        }
+        return new String(hexDecode(hex), charset);
+    }
+
+    public static String hexDecodeToString(String hex) {
+        return hexDecodeToString(hex, DEFAULT_CHARSET);
     }
 
     private static final String AES_ALGORITHM = "AES";
