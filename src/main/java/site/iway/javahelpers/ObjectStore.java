@@ -46,7 +46,7 @@ public class ObjectStore {
             throw new RuntimeException("The name can not be null or empty.");
         }
         if (mNameToMD5) {
-            name = StringHelper.md5(name);
+            name = SecurityHelper.md5(name);
         }
         return mDirectory + name;
     }
