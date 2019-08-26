@@ -168,14 +168,6 @@ public class SecurityHelper {
         return hexEncode(data, true);
     }
 
-    public static String hexEncodeFromString(String content, Charset charset) {
-        return hexEncode(content.getBytes(charset), true);
-    }
-
-    public static String hexEncodeFromString(String content) {
-        return hexEncodeFromString(content, DEFAULT_CHARSET);
-    }
-
     private static int hexDecode(char c) {
         if (c >= '0' && c <= '9') {
             return c - '0';
@@ -204,17 +196,6 @@ public class SecurityHelper {
             data[i] = (byte) (left | right);
         }
         return data;
-    }
-
-    public static String hexDecodeToString(String hex, Charset charset) {
-        if (hex == null) {
-            return null;
-        }
-        return new String(hexDecode(hex), charset);
-    }
-
-    public static String hexDecodeToString(String hex) {
-        return hexDecodeToString(hex, DEFAULT_CHARSET);
     }
 
     private static final String AES_ALGORITHM = "AES";
